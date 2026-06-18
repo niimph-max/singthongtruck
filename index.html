@@ -107,33 +107,27 @@
       </sc-if>
 
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);">
-        <table style="width:100%;border-collapse:collapse;">
-          <thead>
-            <tr style="background:#f8fafc;">
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">รหัสพนักงาน</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">ชื่อพนักงานขับรถ</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">ฟลีต</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">ใบขับขี่หมดอายุ</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">บัตร ปชช.หมดอายุ</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">สถานะเอกสาร</th>
-            </tr>
-          </thead>
-          <tbody>
-            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
-              <tr onClick="{{ r.onOpen }}" style="cursor:pointer;border-bottom:1px solid #f0f2f5;">
-                <td style="padding:12px 15px;font-size:13px;color:#475467;">{{ r.codeFmt }}</td>
-                <td style="padding:12px 15px;">
-                  <div style="font-size:14px;font-weight:600;color:#16263a;">{{ r.name }}</div>
-                  <div style="font-size:12px;color:#98a2b3;margin-top:1px;">ประเภทรถ {{ r.type }}</div>
-                </td>
-                <td style="padding:12px 15px;"><span style="{{ r.fleetStyle }}">{{ r.fleet }}</span></td>
-                <td style="padding:12px 15px;font-size:13px;"><span style="{{ r.licStyle }}">{{ r.licText }}</span></td>
-                <td style="padding:12px 15px;font-size:13px;"><span style="{{ r.idStyle }}">{{ r.idText }}</span></td>
-                <td style="padding:12px 15px;"><span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span></td>
-              </tr>
-            </sc-for>
-          </tbody>
-        </table>
+        <div style="display:grid;grid-template-columns:100px 1fr 90px 130px 130px 110px;background:#f8fafc;border-bottom:1px solid #e4e7ec;">
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">รหัสพนักงาน</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ชื่อพนักงานขับรถ</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ฟลีต</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ใบขับขี่หมดอายุ</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">บัตร ปชช.หมดอายุ</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">สถานะเอกสาร</div>
+        </div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+          <div onClick="{{ r.onOpen }}" style="display:grid;grid-template-columns:100px 1fr 90px 130px 130px 110px;cursor:pointer;border-bottom:1px solid #f0f2f5;">
+            <div style="padding:12px 15px;font-size:13px;color:#475467;">{{ r.codeFmt }}</div>
+            <div style="padding:12px 15px;">
+              <div style="font-size:14px;font-weight:600;color:#16263a;">{{ r.name }}</div>
+              <div style="font-size:12px;color:#98a2b3;margin-top:1px;">ประเภทรถ {{ r.type }}</div>
+            </div>
+            <div style="padding:12px 15px;"><span style="{{ r.fleetStyle }}">{{ r.fleet }}</span></div>
+            <div style="padding:12px 15px;font-size:13px;"><span style="{{ r.licStyle }}">{{ r.licText }}</span></div>
+            <div style="padding:12px 15px;font-size:13px;"><span style="{{ r.idStyle }}">{{ r.idText }}</span></div>
+            <div style="padding:12px 15px;"><span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span></div>
+          </div>
+        </sc-for>
         <sc-if value="{{ emptyVisible }}" hint-placeholder-val="{{ false }}">
           <div style="padding:48px;text-align:center;color:#98a2b3;font-size:14px;">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</div>
         </sc-if>
@@ -336,32 +330,26 @@
       </sc-if>
 
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);">
-        <table style="width:100%;border-collapse:collapse;">
-          <thead>
-            <tr style="background:#f8fafc;">
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">ทะเบียนรถ</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">ชนิดรถ</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">แผนก</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">ทะเบียนรถ</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">ประกันภัยรถ</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">ประกันสินค้า</th>
-              <th style="text-align:left;padding:11px 15px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #e4e7ec;">สถานะเอกสาร</th>
-            </tr>
-          </thead>
-          <tbody>
-            <sc-for list="{{ truckRows }}" as="r" hint-placeholder-count="6">
-              <tr onClick="{{ r.onOpen }}" style="cursor:pointer;border-bottom:1px solid #f0f2f5;">
-                <td style="padding:12px 15px;"><div style="font-size:14.5px;font-weight:700;color:#16263a;">{{ r.plate }}</div></td>
-                <td style="padding:12px 15px;font-size:13.5px;color:#475467;">{{ r.truckType }}</td>
-                <td style="padding:12px 15px;"><span style="{{ r.deptStyle }}">{{ r.deptLabel }}</span></td>
-                <td style="padding:12px 15px;font-size:13px;"><span style="{{ r.regStyle }}">{{ r.regText }}</span></td>
-                <td style="padding:12px 15px;font-size:13px;"><span style="{{ r.insStyle }}">{{ r.insText }}</span></td>
-                <td style="padding:12px 15px;font-size:13px;"><span style="{{ r.cargoStyle }}">{{ r.cargoText }}</span></td>
-                <td style="padding:12px 15px;"><span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span></td>
-              </tr>
-            </sc-for>
-          </tbody>
-        </table>
+        <div style="display:grid;grid-template-columns:160px 100px 90px 110px 110px 110px 1fr;background:#f8fafc;border-bottom:1px solid #e4e7ec;">
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ทะเบียนรถ</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ชนิดรถ</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">แผนก</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ทะเบียนรถ</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ประกันภัยรถ</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ประกันสินค้า</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">สถานะเอกสาร</div>
+        </div>
+        <sc-for list="{{ truckRows }}" as="r" hint-placeholder-count="6">
+          <div onClick="{{ r.onOpen }}" style="display:grid;grid-template-columns:160px 100px 90px 110px 110px 110px 1fr;cursor:pointer;border-bottom:1px solid #f0f2f5;">
+            <div style="padding:12px 15px;font-size:14.5px;font-weight:700;color:#16263a;">{{ r.plate }}</div>
+            <div style="padding:12px 15px;font-size:13.5px;color:#475467;">{{ r.truckType }}</div>
+            <div style="padding:12px 15px;"><span style="{{ r.deptStyle }}">{{ r.deptLabel }}</span></div>
+            <div style="padding:12px 15px;font-size:13px;"><span style="{{ r.regStyle }}">{{ r.regText }}</span></div>
+            <div style="padding:12px 15px;font-size:13px;"><span style="{{ r.insStyle }}">{{ r.insText }}</span></div>
+            <div style="padding:12px 15px;font-size:13px;"><span style="{{ r.cargoStyle }}">{{ r.cargoText }}</span></div>
+            <div style="padding:12px 15px;"><span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span></div>
+          </div>
+        </sc-for>
         <sc-if value="{{ truckEmptyVisible }}" hint-placeholder-val="{{ false }}">
           <div style="padding:48px;text-align:center;color:#98a2b3;font-size:14px;">ยังไม่มีข้อมูลรถบรรทุก — กดปุ่ม "+ เพิ่มรถบรรทุก" เพื่อเริ่มบันทึก</div>
         </sc-if>
