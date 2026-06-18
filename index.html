@@ -80,7 +80,7 @@
   </aside>
 
   <main style="flex:1;min-width:0;height:100vh;overflow:auto;position:relative;">
-    <button onClick="{{ onToggleSidebar }}" style="position:sticky;top:12px;left:12px;z-index:100;width:36px;height:36px;border-radius:8px;background:#16263a;color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:12px 0 -48px 12px;box-shadow:0 2px 8px rgba(0,0,0,.15);">{{ toggleIcon }}</button>
+    <button onClick="{{ onToggleSidebar }}" style="{{ toggleBtnStyle }}">{{ toggleIcon }}</button>
 
     <!-- ===== DRIVER LIST ===== -->
     <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
@@ -116,18 +116,18 @@
       </sc-if>
 
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);">
-        <div style="display:grid;grid-template-columns:100px 1fr 90px 110px 130px 130px 110px 110px;background:#f8fafc;border-bottom:1px solid #e4e7ec;">
+        <div style="display:grid;grid-template-columns:100px 1fr 90px 110px 130px 110px 110px 130px;background:#f8fafc;border-bottom:1px solid #e4e7ec;">
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">รหัสพนักงาน</div>
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ชื่อพนักงานขับรถ</div>
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ฟลีต</div>
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">วันที่เริ่มงาน</div>
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ใบขับขี่หมดอายุ</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">บัตร ปชช.หมดอายุ</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">สถานะเอกสาร</div>
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ประวัติ</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">สถานะเอกสาร</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">บัตร ปชช.หมดอายุ</div>
         </div>
         <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
-          <div onClick="{{ r.onOpen }}" style="display:grid;grid-template-columns:100px 1fr 90px 110px 130px 130px 110px 110px;cursor:pointer;border-bottom:1px solid #f0f2f5;">
+          <div onClick="{{ r.onOpen }}" style="display:grid;grid-template-columns:100px 1fr 90px 110px 130px 110px 110px 130px;cursor:pointer;border-bottom:1px solid #f0f2f5;">
             <div style="padding:12px 15px;font-size:13px;color:#475467;">{{ r.codeFmt }}</div>
             <div style="padding:12px 15px;">
               <div style="font-size:14px;font-weight:600;color:#16263a;">{{ r.name }}</div>
@@ -136,9 +136,9 @@
             <div style="padding:12px 15px;"><span style="{{ r.fleetStyle }}">{{ r.fleet }}</span></div>
             <div style="padding:12px 15px;font-size:13px;color:#475467;">{{ r.startDateFmt }}</div>
             <div style="padding:12px 15px;font-size:13px;"><span style="{{ r.licStyle }}">{{ r.licText }}</span></div>
-            <div style="padding:12px 15px;font-size:13px;"><span style="{{ r.idStyle }}">{{ r.idText }}</span></div>
-            <div style="padding:12px 15px;"><span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span></div>
             <div style="padding:12px 15px;"><span style="{{ r.histColor }}">{{ r.histSummaryRow }}</span></div>
+            <div style="padding:12px 15px;"><span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span></div>
+            <div style="padding:12px 15px;font-size:13px;"><span style="{{ r.idStyle }}">{{ r.idText }}</span></div>
           </div>
         </sc-for>
         <sc-if value="{{ emptyVisible }}" hint-placeholder-val="{{ false }}">
@@ -943,6 +943,7 @@ class Component extends DCLogic {
       asideStyle:'width:'+asideW+';flex:none;background:#16263a;color:#cdd7e1;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden;transition:width .25s ease;',
       onToggleSidebar:()=>this.setState({sidebarOpen:!S.sidebarOpen}),
       toggleIcon:S.sidebarOpen?'✕':'☰',
+      toggleBtnStyle:'position:fixed;top:12px;left:'+(S.sidebarOpen?'216px':'12px')+';z-index:200;width:36px;height:36px;border-radius:8px;background:#16263a;color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.2);transition:left .25s ease;',
       todayTH:this.thaiDate('2026-06-18'),
       isList:S.section==='drivers'&&S.view==='list',
       isProfile:S.section==='drivers'&&S.view==='profile',
