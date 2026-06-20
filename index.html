@@ -1540,7 +1540,7 @@ class Component extends DCLogic {
           try{localStorage.setItem('truckReg_v1',JSON.stringify(merged));}catch(e){}
         }
         // Sheets ว่าง → push ข้อมูลปัจจุบันขึ้น
-        const hasJobs=data.jobs&&Array.isArray(data.jobs)&&data.jobs.length>0;
+        const hasJobs=data.jobs&&Array.isArray(data.jobs);
         if(hasJobs){
           const pendingIds=new Set(JSON.parse(localStorage.getItem('jobPendingIds')||'[]'));
           const localJobsRaw=JSON.parse(localStorage.getItem('jobReg_v1')||'[]');
@@ -1751,7 +1751,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
       onShowAlerts:isTrucks?()=>this.setState({truckStatusFilter:'attention',truckDeptFilter:'all'}):()=>this.setState({statusFilter:'attention',fleet:'all'}),
       syncText:syncSm.text,
       syncDotStyle:'width:7px;height:7px;border-radius:50%;flex:none;background:'+syncSm.dot+';',
-      onSync:()=>{this.setState({syncStatus:'loading'});fetch(SCRIPT_URL).then(r=>r.json()).then(data=>{if(data.error)throw new Error(data.error);try{['driverPendingCodes','truckPendingPlates','jobPendingIds','deletedDriverCodes','deletedTruckPlates'].forEach(k=>localStorage.setItem(k,'[]'));}catch(e){}if(data.drivers&&Array.isArray(data.drivers)&&data.drivers.length){const d=data.drivers.map(normDriver);this.setState({drivers:d});try{localStorage.setItem('driverReg_v2',JSON.stringify(d));}catch(e){}}if(data.trucks&&Array.isArray(data.trucks)&&data.trucks.length){const t=data.trucks.map(normTruck);this.setState({trucks:t});try{localStorage.setItem('truckReg_v1',JSON.stringify(t));}catch(e){}}if(data.jobs&&Array.isArray(data.jobs)&&data.jobs.length){const j=data.jobs.map(normJob);this.setState({jobs:j});try{localStorage.setItem('jobReg_v1',JSON.stringify(j));}catch(e){}}this.setState({syncStatus:'ok'});}).catch(()=>this.setState({syncStatus:'error'}));},  
+      onSync:()=>{this.setState({syncStatus:'loading'});fetch(SCRIPT_URL).then(r=>r.json()).then(data=>{if(data.error)throw new Error(data.error);try{['driverPendingCodes','truckPendingPlates','jobPendingIds','deletedDriverCodes','deletedTruckPlates'].forEach(k=>localStorage.setItem(k,'[]'));}catch(e){}if(data.drivers&&Array.isArray(data.drivers)&&data.drivers.length){const d=data.drivers.map(normDriver);this.setState({drivers:d});try{localStorage.setItem('driverReg_v2',JSON.stringify(d));}catch(e){}}if(data.trucks&&Array.isArray(data.trucks)&&data.trucks.length){const t=data.trucks.map(normTruck);this.setState({trucks:t});try{localStorage.setItem('truckReg_v1',JSON.stringify(t));}catch(e){}}if(data.jobs&&Array.isArray(data.jobs)){const j=data.jobs.map(normJob);this.setState({jobs:j});try{localStorage.setItem('jobReg_v1',JSON.stringify(j));}catch(e){}}this.setState({syncStatus:'ok'});}).catch(()=>this.setState({syncStatus:'error'}));},  
       driverHeaders,truckHeaders,
       // driver list
       listTitle:{'all':'ทะเบียนพนักงานขับรถ','ระยอง':'ฟลีตระยอง','ชลบุรี':'ฟลีตชลบุรี','เทรลเลอร์':'ฟลีตเทรลเลอร์'}[S.fleet]||'ทะเบียนพนักงานขับรถ',
