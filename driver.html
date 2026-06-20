@@ -329,16 +329,7 @@ function refreshFromSheet() {
     .then(data => {
       if (!data || !Array.isArray(data.jobs)) return;
       const sj = data.jobs.find(x => String(x.id) === String(job.id));
-      if (!sj) {
-        // ไม่พบในระบบแล้ว = ถูกลบ/ยกเลิก
-        document.getElementById('app').innerHTML =
-          '<div class="header"><div class="header-logo">ระบบงานขนส่ง</div>'
-          + '<div class="header-title">ใบงานถูกยกเลิก</div></div>'
-          + '<div class="error-box"><div class="icon">🚫</div>'
-          + '<div style="font-size:16px;font-weight:700;margin-bottom:6px;">ใบงานนี้ถูกยกเลิกแล้ว</div>'
-          + '<div style="font-size:13px;">ใบงาน ' + (job.jobNo || '') + ' ถูกลบออกจากระบบ<br>กรุณาติดต่อหัวหน้างาน</div></div>';
-        return;
-      }
+      if (!sj) return; // ไม่เจอใน Sheet → อาจยังไม่ sync ไม่ตัดสินว่ายกเลิก ใช้ข้อมูล QR ต่อ
       // ดึง timestamp ล่าสุดจาก Sheet มาแสดง (Sheet เป็นหลัก)
       const fields = ['pickupTime','pickupLat','pickupLng','arrivalTime','arrivalLat','arrivalLng','completionTime','completionLat','completionLng','documentTime'];
       let changed = false;
