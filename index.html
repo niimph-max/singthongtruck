@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบงานขนส่งสินค้า</title>
-  <link rel="manifest" href="manifest.json">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<template id="__bundler_thumbnail"><svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="56" fill="#16263a"/><rect x="12" y="14" width="56" height="28" rx="3" fill="#2f6fb0"/><rect x="16" y="18" width="24" height="8" rx="1" fill="#fff" opacity=".9"/><rect x="16" y="28" width="48" height="2" rx="1" fill="#fff" opacity=".3"/><rect x="16" y="33" width="36" height="2" rx="1" fill="#fff" opacity=".3"/><rect x="16" y="38" width="28" height="2" rx="1" fill="#fff" opacity=".3"/></svg></template>
+<helmet>
+<link rel="manifest" href="manifest.json">
 <link rel="icon" href="logo.jpeg" type="image/jpeg">
 <link rel="apple-touch-icon" href="logo.jpeg">
 <meta name="theme-color" content="#16263a">
@@ -26,11 +31,7 @@
   ::-webkit-scrollbar-thumb{background:#cdd3da;border-radius:6px;border:2px solid transparent;background-clip:content-box;}
   tbody tr:hover{background:#f7f9fb !important;}
 </style>
-</head>
-<body style="margin:0;padding:0;background:#f0f2f5;">
-<x-dc>
-<template id="__bundler_thumbnail"><svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="56" fill="#16263a"/><rect x="12" y="14" width="56" height="28" rx="3" fill="#2f6fb0"/><rect x="16" y="18" width="24" height="8" rx="1" fill="#fff" opacity=".9"/><rect x="16" y="28" width="48" height="2" rx="1" fill="#fff" opacity=".3"/><rect x="16" y="33" width="36" height="2" rx="1" fill="#fff" opacity=".3"/><rect x="16" y="38" width="28" height="2" rx="1" fill="#fff" opacity=".3"/></svg></template>
-
+</helmet>
 
 <div style="display:flex;min-height:100vh;width:100%;">
   <aside style="{{ asideStyle }}">
@@ -122,6 +123,11 @@
         <span style="font-size:11px;color:#7c90a4;">{{ syncText }}</span>
         <button onClick="{{ onSync }}" style="margin-left:auto;background:none;border:none;color:#6b8299;font-size:15px;cursor:pointer;padding:0;line-height:1;" title="รีเฟรชข้อมูล">↻</button>
       </div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);">
+        <div style="font-size:10px;color:#6b8299;margin-bottom:4px;letter-spacing:.03em;">📱 URL เว็บสำหรับ QR Code</div>
+        <input value="{{ qrBaseUrl }}" onInput="{{ onSetQrBaseUrl }}" placeholder="https://yoursite.com/path/" style="width:100%;padding:5px 8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;font-size:11px;color:#cdd7e1;box-sizing:border-box;" />
+        <div style="font-size:10px;color:#4d6070;margin-top:3px;line-height:1.4;">ถ้าว่างไว้ = ใช้ URL ปัจจุบัน (ใช้ได้แค่ใน session นี้)</div>
+      </div>
     </div>
   </aside>
 
@@ -163,14 +169,9 @@
 
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);">
         <div style="display:grid;grid-template-columns:90px minmax(150px,1fr) 80px 100px 90px 120px 120px 100px;background:#f8fafc;border-bottom:1px solid #e4e7ec;">
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">รหัสพนักงาน</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ชื่อพนักงานขับรถ</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ฟลีต</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">วันที่เริ่มงาน</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ประวัติ</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ใบขับขี่หมดอายุ</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">บัตร ปชช.หมดอายุ</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">สถานะเอกสาร</div>
+          <sc-for list="{{ driverHeaders }}" as="h" hint-placeholder-count="8">
+            <div onClick="{{ h.onClick }}" style="{{ h.style }}">{{ h.label }}<span style="font-size:10px;opacity:.55;margin-left:2px;">{{ h.icon }}</span></div>
+          </sc-for>
         </div>
         <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
           <div onClick="{{ r.onOpen }}" style="display:grid;grid-template-columns:90px minmax(150px,1fr) 80px 100px 90px 120px 120px 100px;cursor:pointer;border-bottom:1px solid #f0f2f5;">
@@ -368,7 +369,15 @@
             </div>
             <div>
               <label style="display:block;font-size:12px;color:#475467;font-weight:600;margin-bottom:5px;">วันที่เริ่มงาน</label>
-              <input type="date" value="{{ draft.startDate }}" onInput="{{ onStartDate }}" style="width:100%;padding:9px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;background:#fff;" />
+              <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                <select value="{{ bePicker.startDate.day }}" onChange="{{ bePicker.startDate.onDay }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:60px;"><option value="">วัน</option><sc-for list="{{ beDayOpts }}" as="o" hint-placeholder-count="31"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+                <select value="{{ bePicker.startDate.month }}" onChange="{{ bePicker.startDate.onMonth }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:68px;"><option value="">เดือน</option><sc-for list="{{ beMonthOpts }}" as="o" hint-placeholder-count="12"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+                <select value="{{ bePicker.startDate.yearBE }}" onChange="{{ bePicker.startDate.onYear }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:80px;"><option value="">ปี พ.ศ.</option><sc-for list="{{ beYearOpts }}" as="o" hint-placeholder-count="61"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:#475467;font-weight:600;margin-bottom:5px;">เงินเดือน (บาท/เดือน)</label>
+              <input type="number" value="{{ draft.salary }}" onInput="{{ onDriverSalary }}" placeholder="0" style="width:100%;padding:9px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;background:#fff;" />
             </div>
             <div style="grid-column:1 / -1;">
               <label style="display:block;font-size:12px;color:#475467;font-weight:600;margin-bottom:5px;">ที่อยู่</label>
@@ -384,7 +393,11 @@
           <div style="flex:1;">
             <div style="font-size:14px;font-weight:600;color:#16263a;margin-bottom:6px;">ใบขับขี่พนักงานขับรถ</div>
             <label style="display:block;font-size:11.5px;color:#667085;margin-bottom:4px;">วันหมดอายุ</label>
-            <input type="date" value="{{ draft.licenseExpiry }}" onInput="{{ onLicenseExpiry }}" style="width:200px;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;" />
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              <select value="{{ bePicker.licenseExpiry.day }}" onChange="{{ bePicker.licenseExpiry.onDay }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:60px;"><option value="">วัน</option><sc-for list="{{ beDayOpts }}" as="o" hint-placeholder-count="31"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.licenseExpiry.month }}" onChange="{{ bePicker.licenseExpiry.onMonth }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:68px;"><option value="">เดือน</option><sc-for list="{{ beMonthOpts }}" as="o" hint-placeholder-count="12"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.licenseExpiry.yearBE }}" onChange="{{ bePicker.licenseExpiry.onYear }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:80px;"><option value="">ปี พ.ศ.</option><sc-for list="{{ beYearOpts }}" as="o" hint-placeholder-count="61"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+            </div>
           </div>
           <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 13px;background:#f4f6f8;border:1px solid #e0e4e9;border-radius:8px;font-size:13px;color:#475467;font-weight:600;cursor:pointer;white-space:nowrap;">
             <span>{{ licFileLabel }}</span><input type="file" onChange="{{ onLicenseFile }}" style="display:none;" />
@@ -394,7 +407,11 @@
           <div style="flex:1;">
             <div style="font-size:14px;font-weight:600;color:#16263a;margin-bottom:6px;">บัตรประชาชนพนักงานขับรถ</div>
             <label style="display:block;font-size:11.5px;color:#667085;margin-bottom:4px;">วันหมดอายุ</label>
-            <input type="date" value="{{ draft.idExpiry }}" onInput="{{ onIdExpiry }}" style="width:200px;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;" />
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              <select value="{{ bePicker.idExpiry.day }}" onChange="{{ bePicker.idExpiry.onDay }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:60px;"><option value="">วัน</option><sc-for list="{{ beDayOpts }}" as="o" hint-placeholder-count="31"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.idExpiry.month }}" onChange="{{ bePicker.idExpiry.onMonth }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:68px;"><option value="">เดือน</option><sc-for list="{{ beMonthOpts }}" as="o" hint-placeholder-count="12"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.idExpiry.yearBE }}" onChange="{{ bePicker.idExpiry.onYear }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:80px;"><option value="">ปี พ.ศ.</option><sc-for list="{{ beYearOpts }}" as="o" hint-placeholder-count="61"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+            </div>
           </div>
           <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 13px;background:#f4f6f8;border:1px solid #e0e4e9;border-radius:8px;font-size:13px;color:#475467;font-weight:600;cursor:pointer;white-space:nowrap;">
             <span>{{ idFileLabel }}</span><input type="file" onChange="{{ onIdFile }}" style="display:none;" />
@@ -446,14 +463,9 @@
 
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);">
         <div style="display:grid;grid-template-columns:160px 90px 80px 100px 100px 100px 100px 90px;background:#f8fafc;border-bottom:1px solid #e4e7ec;">
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ทะเบียนรถ</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ชนิดรถ</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">แผนก</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ทะเบียนรถ<br/><span style="font-weight:400;font-size:11px;">(หมดอายุ)</span></div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ประกันภัยรถ<br/><span style="font-weight:400;font-size:11px;">(หมดอายุ)</span></div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ประกันสินค้า<br/><span style="font-weight:400;font-size:11px;">(หมดอายุ)</span></div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">สถานะเอกสาร</div>
-          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ประวัติ<br/><span style="font-weight:400;font-size:11px;">ซ่อมบำรุง</span></div>
+          <sc-for list="{{ truckHeaders }}" as="h" hint-placeholder-count="8">
+            <div onClick="{{ h.onClick }}" style="{{ h.style }}">{{ h.label }}<span style="font-size:10px;opacity:.55;margin-left:2px;">{{ h.icon }}</span></div>
+          </sc-for>
         </div>
         <sc-for list="{{ truckRows }}" as="r" hint-placeholder-count="6">
           <div onClick="{{ r.onOpen }}" style="display:grid;grid-template-columns:160px 90px 80px 100px 100px 100px 100px 90px;cursor:pointer;border-bottom:1px solid #f0f2f5;">
@@ -745,7 +757,11 @@
           <div style="flex:1;">
             <div style="font-size:13.5px;font-weight:600;color:#16263a;margin-bottom:6px;">บัตรประชาชนเจ้าของรถ</div>
             <label style="display:block;font-size:11.5px;color:#667085;margin-bottom:4px;">วันหมดอายุ</label>
-            <input type="date" value="{{ draft.ownerIdExpiry }}" onInput="{{ onOwnerIdExpiry }}" style="width:200px;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;" />
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              <select value="{{ bePicker.ownerIdExpiry.day }}" onChange="{{ bePicker.ownerIdExpiry.onDay }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:60px;"><option value="">วัน</option><sc-for list="{{ beDayOpts }}" as="o" hint-placeholder-count="31"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.ownerIdExpiry.month }}" onChange="{{ bePicker.ownerIdExpiry.onMonth }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:68px;"><option value="">เดือน</option><sc-for list="{{ beMonthOpts }}" as="o" hint-placeholder-count="12"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.ownerIdExpiry.yearBE }}" onChange="{{ bePicker.ownerIdExpiry.onYear }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:80px;"><option value="">ปี พ.ศ.</option><sc-for list="{{ beYearOpts }}" as="o" hint-placeholder-count="61"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+            </div>
           </div>
           <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 13px;background:#f4f6f8;border:1px solid #e0e4e9;border-radius:8px;font-size:13px;color:#475467;font-weight:600;cursor:pointer;white-space:nowrap;">
             <span>{{ ownerIdFileLabel }}</span><input type="file" onChange="{{ onOwnerIdFile }}" style="display:none;" />
@@ -755,7 +771,11 @@
           <div style="flex:1;">
             <div style="font-size:13.5px;font-weight:600;color:#16263a;margin-bottom:6px;">สมุดทะเบียนรถ</div>
             <label style="display:block;font-size:11.5px;color:#667085;margin-bottom:4px;">วันหมดอายุ</label>
-            <input type="date" value="{{ draft.regExpiry }}" onInput="{{ onRegExpiry }}" style="width:200px;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;" />
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              <select value="{{ bePicker.regExpiry.day }}" onChange="{{ bePicker.regExpiry.onDay }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:60px;"><option value="">วัน</option><sc-for list="{{ beDayOpts }}" as="o" hint-placeholder-count="31"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.regExpiry.month }}" onChange="{{ bePicker.regExpiry.onMonth }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:68px;"><option value="">เดือน</option><sc-for list="{{ beMonthOpts }}" as="o" hint-placeholder-count="12"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.regExpiry.yearBE }}" onChange="{{ bePicker.regExpiry.onYear }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:80px;"><option value="">ปี พ.ศ.</option><sc-for list="{{ beYearOpts }}" as="o" hint-placeholder-count="61"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+            </div>
           </div>
           <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 13px;background:#f4f6f8;border:1px solid #e0e4e9;border-radius:8px;font-size:13px;color:#475467;font-weight:600;cursor:pointer;white-space:nowrap;">
             <span>{{ regFileLabel }}</span><input type="file" onChange="{{ onRegFile }}" style="display:none;" />
@@ -765,7 +785,11 @@
           <div style="flex:1;">
             <div style="font-size:13.5px;font-weight:600;color:#16263a;margin-bottom:6px;">ประกันภัยรถยนต์</div>
             <label style="display:block;font-size:11.5px;color:#667085;margin-bottom:4px;">วันหมดอายุ</label>
-            <input type="date" value="{{ draft.insuranceExpiry }}" onInput="{{ onInsuranceExpiry }}" style="width:200px;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;" />
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              <select value="{{ bePicker.insuranceExpiry.day }}" onChange="{{ bePicker.insuranceExpiry.onDay }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:60px;"><option value="">วัน</option><sc-for list="{{ beDayOpts }}" as="o" hint-placeholder-count="31"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.insuranceExpiry.month }}" onChange="{{ bePicker.insuranceExpiry.onMonth }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:68px;"><option value="">เดือน</option><sc-for list="{{ beMonthOpts }}" as="o" hint-placeholder-count="12"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.insuranceExpiry.yearBE }}" onChange="{{ bePicker.insuranceExpiry.onYear }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:80px;"><option value="">ปี พ.ศ.</option><sc-for list="{{ beYearOpts }}" as="o" hint-placeholder-count="61"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+            </div>
           </div>
           <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 13px;background:#f4f6f8;border:1px solid #e0e4e9;border-radius:8px;font-size:13px;color:#475467;font-weight:600;cursor:pointer;white-space:nowrap;">
             <span>{{ insuranceFileLabel }}</span><input type="file" onChange="{{ onInsuranceFile }}" style="display:none;" />
@@ -775,7 +799,11 @@
           <div style="flex:1;">
             <div style="font-size:13.5px;font-weight:600;color:#16263a;margin-bottom:6px;">ประกันสินค้า</div>
             <label style="display:block;font-size:11.5px;color:#667085;margin-bottom:4px;">วันหมดอายุ</label>
-            <input type="date" value="{{ draft.cargoInsExpiry }}" onInput="{{ onCargoInsExpiry }}" style="width:200px;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;" />
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              <select value="{{ bePicker.cargoInsExpiry.day }}" onChange="{{ bePicker.cargoInsExpiry.onDay }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:60px;"><option value="">วัน</option><sc-for list="{{ beDayOpts }}" as="o" hint-placeholder-count="31"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.cargoInsExpiry.month }}" onChange="{{ bePicker.cargoInsExpiry.onMonth }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:68px;"><option value="">เดือน</option><sc-for list="{{ beMonthOpts }}" as="o" hint-placeholder-count="12"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.cargoInsExpiry.yearBE }}" onChange="{{ bePicker.cargoInsExpiry.onYear }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:80px;"><option value="">ปี พ.ศ.</option><sc-for list="{{ beYearOpts }}" as="o" hint-placeholder-count="61"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+            </div>
           </div>
           <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 13px;background:#f4f6f8;border:1px solid #e0e4e9;border-radius:8px;font-size:13px;color:#475467;font-weight:600;cursor:pointer;white-space:nowrap;">
             <span>{{ cargoInsFileLabel }}</span><input type="file" onChange="{{ onCargoInsFile }}" style="display:none;" />
@@ -785,7 +813,11 @@
           <div style="flex:1;">
             <div style="font-size:13.5px;font-weight:600;color:#16263a;margin-bottom:6px;">สัญญาขนส่ง</div>
             <label style="display:block;font-size:11.5px;color:#667085;margin-bottom:4px;">วันที่ทำสัญญา</label>
-            <input type="date" value="{{ draft.contractDate }}" onInput="{{ onContractDate }}" style="width:200px;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;" />
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              <select value="{{ bePicker.contractDate.day }}" onChange="{{ bePicker.contractDate.onDay }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:60px;"><option value="">วัน</option><sc-for list="{{ beDayOpts }}" as="o" hint-placeholder-count="31"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.contractDate.month }}" onChange="{{ bePicker.contractDate.onMonth }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:68px;"><option value="">เดือน</option><sc-for list="{{ beMonthOpts }}" as="o" hint-placeholder-count="12"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              <select value="{{ bePicker.contractDate.yearBE }}" onChange="{{ bePicker.contractDate.onYear }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:80px;"><option value="">ปี พ.ศ.</option><sc-for list="{{ beYearOpts }}" as="o" hint-placeholder-count="61"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+            </div>
           </div>
           <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 13px;background:#f4f6f8;border:1px solid #e0e4e9;border-radius:8px;font-size:13px;color:#475467;font-weight:600;cursor:pointer;white-space:nowrap;">
             <span>{{ contractFileLabel }}</span><input type="file" onChange="{{ onContractFile }}" style="display:none;" />
@@ -795,15 +827,9 @@
 
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:14px;padding:20px 22px;margin-bottom:16px;">
         <div style="font-size:13px;font-weight:700;color:#16263a;margin-bottom:14px;">💰 ข้อมูลการเงิน (รถบริษัท)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <div>
-            <label style="display:block;font-size:12px;color:#475467;font-weight:600;margin-bottom:5px;">เงินเดือน พขร. (บาท/เดือน)</label>
-            <input type="number" value="{{ draft.salary }}" onInput="{{ onTruckSalary }}" placeholder="0" style="width:100%;padding:9px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
-          <div>
-            <label style="display:block;font-size:12px;color:#475467;font-weight:600;margin-bottom:5px;">ค่างวดรถ (บาท/เดือน) — 0 ถ้าไม่มี</label>
-            <input type="number" value="{{ draft.installment }}" onInput="{{ onTruckInstallment }}" placeholder="0" style="width:100%;padding:9px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
+        <div>
+          <label style="display:block;font-size:12px;color:#475467;font-weight:600;margin-bottom:5px;">ค่างวดรถ (บาท/เดือน) — 0 ถ้าไม่มี</label>
+          <input type="number" value="{{ draft.installment }}" onInput="{{ onTruckInstallment }}" placeholder="0" style="width:280px;padding:9px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
         </div>
       </div>
 
@@ -826,7 +852,12 @@
           <div style="font-size:13px;color:#667085;margin-top:3px;">แสดง {{ jobRowCount }} จาก {{ jobTotalCount }} รายการ</div>
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-          <input type="date" value="{{ jobDateFilter }}" onInput="{{ onJobDateFilter }}" style="padding:9px 12px;border:1px solid #d0d5dd;border-radius:9px;font-size:14px;background:#fff;color:#1d2b3a;" />
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <input type="date" value="{{ jobDateFrom }}" onInput="{{ onJobDateFrom }}" style="padding:9px 12px;border:1px solid #d0d5dd;border-radius:9px;font-size:14px;background:#fff;color:#1d2b3a;" />
+            <span style="font-size:13px;color:#667085;white-space:nowrap;">ถึง</span>
+            <input type="date" value="{{ jobDateTo }}" onInput="{{ onJobDateTo }}" style="padding:9px 12px;border:1px solid #d0d5dd;border-radius:9px;font-size:14px;background:#fff;color:#1d2b3a;" />
+            <button onClick="{{ onClearJobDateFilter }}" title="ล้างช่วงวันที่" style="padding:9px 11px;background:#f4f6f8;border:1px solid #d0d5dd;border-radius:9px;font-size:13px;color:#667085;cursor:pointer;white-space:nowrap;">✕ ดูทั้งหมด</button>
+          </div>
           <div style="position:relative;">
             <input value="{{ jobSearch }}" onInput="{{ onJobSearch }}" placeholder="ค้นหา ใบงาน / พขร. / ลูกค้า" style="width:220px;padding:9px 12px 9px 36px;border:1px solid #d0d5dd;border-radius:9px;font-size:14px;background:#fff;color:#1d2b3a;" />
             <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#98a2b3;font-size:15px;">⌕</span>
@@ -835,31 +866,39 @@
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">
-        <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:16px 20px;">
-          <div style="font-size:12px;color:#667085;margin-bottom:4px;">ค่าขนส่งรวม</div>
-          <div style="font-size:22px;font-weight:700;color:#175cd3;">{{ jobRevTotal }}</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:stretch;">
+        <sc-for list="{{ jobStatusCards }}" as="s" hint-placeholder-count="4">
+          <div style="{{ s.cardStyle }}">
+            <div style="font-size:11px;color:#667085;font-weight:600;margin-bottom:8px;letter-spacing:.03em;">{{ s.label }}</div>
+            <div style="{{ s.numStyle }}">{{ s.count }}</div>
+            <div style="font-size:11.5px;color:#98a2b3;margin-top:4px;">เที่ยว</div>
+          </div>
+        </sc-for>
+        <div style="display:flex;flex-direction:column;justify-content:center;gap:6px;padding:6px 0;">
+          <sc-if value="{{ pinUnlocked }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ onLockPin }}" style="background:#f4f6f8;border:1px solid #e4e7ec;border-radius:10px;padding:9px 14px;font-size:12px;color:#667085;cursor:pointer;white-space:nowrap;">🔓 ล็อกตัวเลข</button>
+          </sc-if>
+          <sc-if value="{{ pinUnlocked }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ onOpenPin }}" style="background:#16263a;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;white-space:nowrap;">🔒 ปลดล็อก</button>
+          </sc-if>
         </div>
-        <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:16px 20px;">
-          <div style="font-size:12px;color:#667085;margin-bottom:4px;">ค่าใช้จ่ายรวม</div>
-          <div style="font-size:22px;font-weight:700;color:#b54708;">{{ jobExpTotal }}</div>
-        </div>
-        <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:16px 20px;">
-          <div style="font-size:12px;color:#667085;margin-bottom:4px;">กำไรสุทธิ</div>
-          <div style="font-size:22px;font-weight:700;" style="{{ jobProfitStyle }}">{{ jobProfit }}</div>
-        </div>
-        <sc-if value="{{ pinUnlocked }}" hint-placeholder-val="{{ false }}">
-          <button onClick="{{ onLockPin }}" style="background:#f4f6f8;border:1px solid #e4e7ec;border-radius:10px;padding:10px 14px;font-size:12px;color:#667085;cursor:pointer;display:flex;align-items:center;gap:6px;">🔓 ล็อกตัวเลข</button>
-        </sc-if>
-        <sc-if value="{{ pinUnlocked }}" hint-placeholder-val="{{ true }}">
-          <button onClick="{{ onOpenPin }}" style="background:#16263a;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;">🔒 ปลดล็อกดูตัวเลข</button>
-        </sc-if>
       </div>
+      <sc-if value="{{ hasDriverChips }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+          <sc-for list="{{ driverStatusChips }}" as="s" hint-placeholder-count="3">
+            <div style="background:#f8fafc;border:1px solid #e4e7ec;border-radius:10px;padding:9px 14px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:17px;font-weight:700;color:#16263a;">{{ s.count }}</span>
+              <span style="font-size:12px;color:#475467;">{{ s.icon }} {{ s.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
 
-      <div style="background:#fff;border:1px solid #e4e7ec;border-radius:14px;overflow:hidden;">
-        <div style="display:grid;grid-template-columns:100px 85px 75px minmax(130px,1fr) 110px 110px 95px 90px 80px 90px;background:#f8fafc;border-bottom:1px solid #e4e7ec;">
+      <div style="background:#fff;border:1px solid #e4e7ec;border-radius:14px;overflow-x:auto;">
+        <div style="display:grid;grid-template-columns:100px 80px 90px 65px minmax(120px,1fr) 105px 95px 88px 82px 75px 100px 82px;background:#f8fafc;border-bottom:1px solid #e4e7ec;min-width:900px;">
           <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;">เลขใบงาน</div>
           <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;">วันที่</div>
+          <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;">Delivery No.</div>
           <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;">จุด</div>
           <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;">พนักงานขับรถ</div>
           <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;">ทะเบียนรถ</div>
@@ -867,17 +906,28 @@
           <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;">ค่าขนส่ง</div>
           <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;">ค่าใช้จ่าย</div>
           <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;">สถานะ</div>
+          <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;">สถานะ Driver</div>
           <div style="padding:11px 12px;font-size:12px;font-weight:600;color:#667085;"></div>
         </div>
 
         <sc-if value="{{ jobEmpty }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:48px;text-align:center;color:#98a2b3;font-size:14px;">ยังไม่มีใบงานในวันที่เลือก — กด "สร้างใบงาน" เพื่อเริ่มบันทึก</div>
+          <sc-if value="{{ jobEmptyByDate }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:48px;text-align:center;">
+              <div style="font-size:15px;font-weight:600;color:#475467;margin-bottom:6px;">ไม่มีใบงานในวันที่เลือก</div>
+              <div style="font-size:13px;color:#98a2b3;margin-bottom:16px;">มีใบงานทั้งหมด {{ jobTotalCount }} รายการในระบบ</div>
+              <button onClick="{{ onClearJobDateFilter }}" style="padding:8px 20px;background:#eaf1fb;color:#2f6fb0;border:1px solid #cfe0f2;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">ดูทุกวัน</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ jobEmptyNoData }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:48px;text-align:center;color:#98a2b3;font-size:14px;">ยังไม่มีใบงาน — กด "สร้างใบงาน" เพื่อเริ่มบันทึก</div>
+          </sc-if>
         </sc-if>
 
         <sc-for list="{{ jobRows }}" as="j" hint-placeholder-count="5">
-          <div style="display:grid;grid-template-columns:100px 85px 75px minmax(130px,1fr) 110px 110px 95px 90px 80px 90px;border-bottom:1px solid #f0f2f5;align-items:center;">
+          <div style="display:grid;grid-template-columns:100px 80px 90px 65px minmax(120px,1fr) 105px 95px 88px 82px 75px 100px 82px;border-bottom:1px solid #f0f2f5;align-items:center;min-width:900px;">
             <div style="padding:11px 12px;font-size:12px;color:#475467;font-weight:600;">{{ j.jobNo }}</div>
             <div style="padding:11px 12px;font-size:12px;color:#475467;">{{ j.dateFmt }}</div>
+            <div style="padding:11px 12px;font-size:12px;color:#475467;font-weight:600;">{{ j.deliveryNoText }}</div>
             <div style="padding:11px 12px;"><span style="{{ j.dpChip }}">{{ j.dispatchPoint }}</span></div>
             <div style="padding:11px 12px;">
               <div style="font-size:13.5px;font-weight:600;color:#16263a;">{{ j.driverName }}</div>
@@ -888,6 +938,7 @@
             <div style="padding:11px 12px;font-size:13px;font-weight:600;color:#175cd3;">{{ j.revenueText }}</div>
             <div style="padding:11px 12px;font-size:13px;color:#b54708;">{{ j.expText }}</div>
             <div style="padding:11px 12px;"><span style="{{ j.statusStyle }}">{{ j.status }}</span></div>
+            <div style="padding:11px 12px;"><span style="{{ j.driverStatusStyle }}">{{ j.driverStatusLabel }}</span></div>
             <div style="padding:11px 12px;display:flex;gap:5px;">
               <button onClick="{{ j.onEdit }}" style="background:#f4f6f8;border:none;border-radius:6px;padding:5px 8px;font-size:11.5px;color:#475467;cursor:pointer;">แก้ไข</button>
               <button onClick="{{ j.onDelete }}" style="background:#fef3f2;border:none;border-radius:6px;padding:5px 8px;font-size:11.5px;color:#b42318;cursor:pointer;">ลบ</button>
@@ -946,6 +997,7 @@
             <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">สถานะ</label>
             <select value="{{ jd.status }}" onChange="{{ onJobStatus }}" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;background:#fff;">
               <option value="รับงาน">รับงาน</option>
+              <option value="จ่ายงาน">จ่ายงาน</option>
               <option value="เสร็จสิ้น">เสร็จสิ้น</option>
             </select>
           </div>
@@ -953,25 +1005,56 @@
       </div>
 
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:14px;padding:22px;margin-bottom:16px;">
-        <div style="font-size:14px;font-weight:700;color:#16263a;margin-bottom:16px;">พนักงานขับรถ &amp; รถ</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">พนักงานขับรถ</label>
-            <select value="{{ jd.driverCode }}" onChange="{{ onJobDriver }}" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;background:#fff;">
-              <option value="">— เลือกพนักงาน —</option>
-              <sc-for list="{{ jobDriverOptions }}" as="opt" hint-placeholder-count="5">
-                <option value="{{ opt.value }}">{{ opt.label }}</option>
-              </sc-for>
-            </select>
+        <div style="font-size:14px;font-weight:700;color:#16263a;margin-bottom:4px;">พนักงานขับรถ &amp; รถ</div>
+        <div style="font-size:12px;color:#98a2b3;margin-bottom:16px;">เลือกฟลีต/แผนกก่อน เพื่อกรองรายชื่อ</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="background:#f8fafc;border:1px solid #e4e7ec;border-radius:10px;padding:14px;">
+            <div style="font-size:11.5px;font-weight:700;color:#475467;margin-bottom:10px;letter-spacing:.03em;">👤 พนักงานขับรถ</div>
+            <div style="margin-bottom:8px;">
+              <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">① เลือกฟลีต</label>
+              <select value="{{ jd.driverFleet }}" onChange="{{ onJobDriverFleet }}" style="width:100%;padding:8px 10px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;">
+                <option value="">— ทุกฟลีต —</option>
+                <sc-for list="{{ jobFleetOptions }}" as="opt" hint-placeholder-count="3">
+                  <option value="{{ opt.value }}">{{ opt.label }}</option>
+                </sc-for>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">② เลือกพนักงาน</label>
+              <select value="{{ jd.driverCode }}" onChange="{{ onJobDriver }}" style="width:100%;padding:8px 10px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;">
+                <option value="">— เลือกพนักงาน —</option>
+                <sc-for list="{{ jobDriverOptions }}" as="opt" hint-placeholder-count="5">
+                  <option value="{{ opt.value }}">{{ opt.label }}</option>
+                </sc-for>
+              </select>
+              <sc-if value="{{ jdDriverFleetLabel }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12px;color:#2f6fb0;font-weight:600;margin-top:5px;">👤 {{ jdDriverTypeLabel }} · ฟลีต{{ jdDriverFleetLabel }}</div>
+              </sc-if>
+            </div>
           </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ทะเบียนรถ</label>
-            <select value="{{ jd.truckPlate }}" onChange="{{ onJobTruck }}" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;background:#fff;">
-              <option value="">— เลือกรถ —</option>
-              <sc-for list="{{ jobTruckOptions }}" as="opt" hint-placeholder-count="5">
-                <option value="{{ opt.value }}">{{ opt.label }}</option>
-              </sc-for>
-            </select>
+          <div style="background:#f8fafc;border:1px solid #e4e7ec;border-radius:10px;padding:14px;">
+            <div style="font-size:11.5px;font-weight:700;color:#475467;margin-bottom:10px;letter-spacing:.03em;">🚛 รถบรรทุก</div>
+            <div style="margin-bottom:8px;">
+              <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">① เลือกแผนก</label>
+              <select value="{{ jd.truckDept }}" onChange="{{ onJobTruckDept }}" style="width:100%;padding:8px 10px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;">
+                <option value="">— ทุกแผนก —</option>
+                <sc-for list="{{ jobTruckDeptOptions }}" as="opt" hint-placeholder-count="3">
+                  <option value="{{ opt.value }}">{{ opt.label }}</option>
+                </sc-for>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">② เลือกทะเบียนรถ</label>
+              <select value="{{ jd.truckPlate }}" onChange="{{ onJobTruck }}" style="width:100%;padding:8px 10px;border:1px solid #d0d5dd;border-radius:8px;font-size:13.5px;color:#1d2b3a;background:#fff;">
+                <option value="">— เลือกรถ —</option>
+                <sc-for list="{{ jobTruckOptions }}" as="opt" hint-placeholder-count="5">
+                  <option value="{{ opt.value }}">{{ opt.label }}</option>
+                </sc-for>
+              </select>
+              <sc-if value="{{ jdTruckTypeLabel }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12px;color:#2f6fb0;font-weight:600;margin-top:5px;">🚛 {{ jdTruckTypeLabel }}</div>
+              </sc-if>
+            </div>
           </div>
         </div>
       </div>
@@ -979,14 +1062,6 @@
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:14px;padding:22px;margin-bottom:16px;">
         <div style="font-size:14px;font-weight:700;color:#16263a;margin-bottom:16px;">รายละเอียดงาน</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ต้นทาง</label>
-            <input value="{{ jd.origin }}" onInput="{{ onJobOrigin }}" placeholder="โกดัง / จุดรับสินค้า" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ปลายทาง</label>
-            <input value="{{ jd.destination }}" onInput="{{ onJobDest }}" placeholder="ที่อยู่ลูกค้า / ปลายทาง" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
           <div>
             <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ลูกค้า / บริษัท</label>
             <select value="{{ jd.customer }}" onChange="{{ onJobCustomer }}" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;background:#fff;">
@@ -1001,6 +1076,25 @@
           <div>
             <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">เลขที่เอกสาร (Delivery No.)</label>
             <input value="{{ jd.deliveryNo }}" onInput="{{ onJobDeliveryNo }}" placeholder="เช่น DN-2026-001" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ต้นทาง</label>
+            <select value="{{ jdOriginPreset }}" onChange="{{ onJobOriginPreset }}" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;background:#fff;">
+              <option value="">— เลือกต้นทาง —</option>
+              <option value="รง.เหล็กมาบตาพุต">รง.เหล็กมาบตาพุต</option>
+              <option value="รง. บ่อวิน NTS">รง. บ่อวิน NTS</option>
+              <option value="รง. เหล็กท่าหลวง">รง. เหล็กท่าหลวง</option>
+              <option value="รง.โมเนีย บ้านบึง">รง.โมเนีย บ้านบึง</option>
+              <option value="รง. การ์เดียน ระยอง">รง. การ์เดียน ระยอง</option>
+              <option value="อื่น...">อื่น... ระบุ</option>
+            </select>
+            <sc-if value="{{ isOriginOther }}" hint-placeholder-val="{{ false }}">
+              <input value="{{ jd.origin }}" onInput="{{ onJobOrigin }}" placeholder="ระบุต้นทาง" style="width:100%;padding:8px 12px;border:1px solid #2f6fb0;border-radius:8px;font-size:14px;color:#1d2b3a;margin-top:6px;" />
+            </sc-if>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ปลายทาง</label>
+            <input value="{{ jd.destination }}" onInput="{{ onJobDest }}" placeholder="ที่อยู่ลูกค้า/ปลายทาง .. จังหวัด อำเภอ" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
@@ -1321,7 +1415,6 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
-
 const SEED = [
  {"code":"700654","name":"นาย อิทธิพล ชวาฤทธิ์","type":"GIR6","address":"12/8 หมู่ที่ 11 ต.หนองละลอก อ.บ้านค่าย จ.ระยอง 21120","account":"4037100142","idCard":"5 6701 90021 13 1","fleet":"ระยอง","startDate":"2023-12-15","licenseExpiry":"2025-11-30","idExpiry":"2031-05-12","hasLicenseFile":true,"hasIdFile":true,"photo":null},
  {"code":"700705","name":"นายสมศักดิ์ วงศา","type":"GIR6","address":"1 หมู่ 6 ต.บ้านหวาย อ.วาปีปทุม จ.มหาสารคาม","account":"4033156010","idCard":"3440900825619","fleet":"ระยอง","startDate":"2012-05-18","licenseExpiry":"2026-07-05","idExpiry":"2027-03-01","hasLicenseFile":true,"hasIdFile":true,"photo":null},
@@ -1350,7 +1443,7 @@ const SEED = [
  {"code":"743415","name":"นายอนันต์ ประทุมชาติ","type":"GIRTL","address":"222/1 หมู่ 5 ต.หนองบัว อ.บ้านค่าย จ.ระยอง","account":"4241493549","idCard":"3210500624618","fleet":"เทรลเลอร์","startDate":"2022-01-04","licenseExpiry":"2030-01-04","idExpiry":"2029-06-01","hasLicenseFile":true,"hasIdFile":true,"photo":null}
 ];
 const TYPE_MAP={'GIR6':'หกล้อ','GIR10':'สิบล้อ','GIRTL':'กึ่งพ่วง 3 เพลา','CL':'กึ่งพ่วง 2 เพลา'};
-function normDriver(d){const r={idCard:'',address:'',fleet:'ระยอง',startDate:'',licenseExpiry:'',idExpiry:'',hasLicenseFile:false,hasIdFile:false,photo:null,history:[],...d,code:String(d.code||''),name:String(d.name||''),type:(TYPE_MAP[d.type]||d.type)};if(!Array.isArray(r.history)){try{const p=JSON.parse(r.history);r.history=Array.isArray(p)?p:[];}catch(e){r.history=[];}}return r;}
+function normDriver(d){const r={idCard:'',address:'',fleet:'ระยอง',startDate:'',licenseExpiry:'',idExpiry:'',hasLicenseFile:false,hasIdFile:false,photo:null,history:[],salary:'',...d,code:String(d.code||''),name:String(d.name||''),type:(TYPE_MAP[d.type]||d.type)};if(!Array.isArray(r.history)){try{const p=JSON.parse(r.history);r.history=Array.isArray(p)?p:[];}catch(e){r.history=[];}}return r;}
 function normTruck(t){
   // parse maintenance ถ้าเป็น string จาก Sheets
   let maint=t.maintenance;
@@ -1361,8 +1454,9 @@ function normTruck(t){
   // normalize date fields: ตัด timestamp ออก เหลือแค่ YYYY-MM-DD
   const normDate=(v)=>{if(!v)return '';return String(v).slice(0,10);}
   const r={plate:'',truckType:'',fuel:'',dept:'',maker:'',model:'',year:'',color:'',chassis:'',engine:'',weight:'',loadWeight:'',gps:'',owner:'',ownerIdCard:'',account:'',remark:'',maintenance:[],photo:null,contractDate:'',regExpiry:'',hasRegFile:false,insuranceExpiry:'',hasInsuranceFile:false,ownerIdExpiry:'',hasOwnerIdFile:false,cargoInsExpiry:'',hasCargoInsFile:false,hasContractFile:false,salary:'',installment:'',makerOther:'',...t,maintenance:maint,hasRegFile:boolParse(t.hasRegFile),hasInsuranceFile:boolParse(t.hasInsuranceFile),hasOwnerIdFile:boolParse(t.hasOwnerIdFile),hasCargoInsFile:boolParse(t.hasCargoInsFile),hasContractFile:boolParse(t.hasContractFile),regExpiry:normDate(t.regExpiry),insuranceExpiry:normDate(t.insuranceExpiry),ownerIdExpiry:normDate(t.ownerIdExpiry),cargoInsExpiry:normDate(t.cargoInsExpiry),contractDate:normDate(t.contractDate)};if(r.dept&&r.dept.startsWith('01'))r.dept='รถบริษัท';else if(r.dept&&!['รถบริษัท','รถร่วม','รถผู้บริหาร',''].includes(r.dept))r.dept='รถร่วม';if(!Array.isArray(r.maintenance)){try{const p=JSON.parse(r.maintenance);r.maintenance=Array.isArray(p)?p:[];}catch(e){r.maintenance=[];}}return r;}
-function normJob(j){return{id:j.id||0,jobNo:j.jobNo||'',date:j.date||'',time:j.time||'',driverCode:j.driverCode||'',truckPlate:j.truckPlate||'',origin:j.origin||'',destination:j.destination||'',customer:j.customer||'',deliveryNo:j.deliveryNo||'',weight:j.weight||'',revenue:j.revenue||'',dispatchPoint:j.dispatchPoint||'ระยอง',status:j.status||'รับงาน',fuelLiters:j.fuelLiters||'',fuelBaht:j.fuelBaht||'',toll:j.toll||'',allowance:j.allowance||'',tire:j.tire||'',repair:j.repair||'',police:j.police||'',misc:j.misc||'',remark:j.remark||'',createdAt:j.createdAt||'',dispatchTime:j.dispatchTime||'',pickupTime:j.pickupTime||'',pickupLat:j.pickupLat||'',pickupLng:j.pickupLng||'',arrivalTime:j.arrivalTime||'',arrivalLat:j.arrivalLat||'',arrivalLng:j.arrivalLng||'',completionTime:j.completionTime||'',completionLat:j.completionLat||'',completionLng:j.completionLng||'',documentTime:j.documentTime||'',dispatcher:j.dispatcher||'',dispatcherOther:j.dispatcherOther||''};}
-const DISPATCHERS=['ปกรณ์ สิ้นทอง','วารี ภักดีวาณิช','นันทนา สุขศิลา','สมศักดิ์ ชนะวงษ์','จารพรรณ ขาวสุข','คศิมาภรณ์ ชนะวงศ์','อื่นๆ'];
+function normJob(j){return{id:j.id||0,jobNo:j.jobNo||'',date:j.date||'',time:j.time||'',driverCode:String(j.driverCode||''),truckPlate:j.truckPlate||'',origin:j.origin||'',destination:j.destination||'',customer:j.customer||'',deliveryNo:j.deliveryNo||'',weight:j.weight||'',revenue:j.revenue||'',dispatchPoint:j.dispatchPoint||'ระยอง',status:j.status||'รับงาน',fuelLiters:j.fuelLiters||'',fuelBaht:j.fuelBaht||'',toll:j.toll||'',allowance:j.allowance||'',tire:j.tire||'',repair:j.repair||'',police:j.police||'',misc:j.misc||'',remark:j.remark||'',createdAt:j.createdAt||'',dispatchTime:j.dispatchTime||'',pickupTime:j.pickupTime||'',pickupLat:j.pickupLat||'',pickupLng:j.pickupLng||'',arrivalTime:j.arrivalTime||'',arrivalLat:j.arrivalLat||'',arrivalLng:j.arrivalLng||'',completionTime:j.completionTime||'',completionLat:j.completionLat||'',completionLng:j.completionLng||'',documentTime:j.documentTime||'',dispatcher:j.dispatcher||'',dispatcherOther:j.dispatcherOther||''};}
+const DISPATCHERS=['ปกรณ์ ลิ้นทอง','วารี ภักดีวาณิช','นันทนา สุขศิลา','สมศักดิ์ ชนะวงษ์','จารพรรณ ขาวสุข','คศิมาภรณ์ ชนะวงศ์','อื่นๆ'];
+const ORIGINS=['รง.เหล็กมาบตาพุต','รง. บ่อวิน NTS','รง. เหล็กท่าหลวง','รง.โมเนีย บ้านบึง','รง. การ์เดียน ระยอง'];
 const DISPATCH_POINTS=['ระยอง','ชลบุรี','สระบุรี','อื่นๆ'];
 const TRUCK_SEED=[{"plate":"กพ-8868 สระบุรี","truckType":"04-รถปิคอัพ","fuel":"ดีเซล","dept":"01-รถบริษัท","maker":"TOYOTA","model":"Fortuner","year":"2560","chassis":"MR0GA3GS300012620","engine":"1GD4313443","regExpiry":"","insuranceExpiry":"2024-07-04","cargoInsExpiry":"2024-09-25"},{"plate":"กพ-7797 สระบุรี","truckType":"04-รถปิคอัพ","fuel":"เบนซิน","dept":"01-รถบริษัท","maker":"HONDA","model":"CRV","year":"2560","chassis":"MRHRW6830JP101160","engine":"K24V53201987","regExpiry":"","insuranceExpiry":"2024-05-31","cargoInsExpiry":"2024-07-24"},{"plate":"70-7904 สระบุรี","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"01-รถบริษัท","maker":"ISUZU","model":"ตู้บรรทุก","year":"2553","chassis":"MP1TFR86HAT115471","engine":"4JK1GV1413","regExpiry":"","insuranceExpiry":"2024-12-31","cargoInsExpiry":""},{"plate":"71-8943 สระบุรี","truckType":"18-รถหัวลาก","fuel":"ดีเซล","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2561","chassis":"MNKFM1AK1XHX13845","engine":"A09CTHH56981","regExpiry":"2024-12-31","insuranceExpiry":"2024-03-16","cargoInsExpiry":"2024-06-21"},{"plate":"71-1523 สระบุรี","truckType":"18-รถหัวลาก","fuel":"NGV","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2556","chassis":"FM1JKKA-16089","engine":"J08CVDII11957","regExpiry":"2024-12-31","insuranceExpiry":"2024-02-16","cargoInsExpiry":"2024-06-21"},{"plate":"71-1522 สระบุรี","truckType":"18-รถหัวลาก","fuel":"NGV","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2556","chassis":"FM1JKKA-16128","engine":"J08CVDII12010","regExpiry":"2024-12-31","insuranceExpiry":"2024-02-16","cargoInsExpiry":"2024-06-21"},{"plate":"70-8880 สระบุรี","truckType":"18-รถหัวลาก","fuel":"NGV","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2554","chassis":"FM1JKKA-14379","engine":"J08C-VD14230","regExpiry":"2024-12-31","insuranceExpiry":"2024-02-16","cargoInsExpiry":"2024-06-21"},{"plate":"70-8330 สระบุรี","truckType":"18-รถหัวลาก","fuel":"NGV","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2553","chassis":"FM1JKKA-12967","engine":"J08C-VD12445","regExpiry":"2024-06-30","insuranceExpiry":"2024-07-29","cargoInsExpiry":"2024-06-20"},{"plate":"70-8320 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2553","chassis":"SMM100663-0202","engine":"","regExpiry":"","insuranceExpiry":"2024-06-30","cargoInsExpiry":""},{"plate":"70-8317 สระบุรี","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"01-รถบริษัท","maker":"HINO","model":"FL1","year":"2553","chassis":"FL1JTKA-12211","engine":"J08C-VD12377","regExpiry":"","insuranceExpiry":"","cargoInsExpiry":""},{"plate":"70-8974 สระบุรี","truckType":"18-รถหัวลาก","fuel":"NGV","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2554","chassis":"FM1JKKA-14524","engine":"J08C-VD14657","regExpiry":"2024-03-31","insuranceExpiry":"2024-03-22","cargoInsExpiry":"2024-06-20"},{"plate":"71-0268 สระบุรี","truckType":"18-รถหัวลาก","fuel":"NGV","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2555","chassis":"FM1JKKA-15356","engine":"J08CVDH11006","regExpiry":"2024-03-31","insuranceExpiry":"2024-05-26","cargoInsExpiry":"2024-06-20"},{"plate":"71-7916 สระบุรี","truckType":"18-รถหัวลาก","fuel":"ดีเซล","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2560","chassis":"MNKFM1AK1XHX11789","engine":"A09CTHH53417","regExpiry":"2024-03-31","insuranceExpiry":"2024-05-11","cargoInsExpiry":"2024-06-21"},{"plate":"70-3001 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2537","chassis":"P39-8938","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"70-3003 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2537","chassis":"P37-2149","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"70-3004 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2537","chassis":"P37-2151","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"70-3005 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2537","chassis":"P37-2148","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"70-3007 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2539","chassis":"P39-8936","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"70-3011 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2537","chassis":"P37-2152","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"70-8975 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2554","chassis":"P54-3027","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"71-0361 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2555","chassis":"P55-4050","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"71-3605 สระบุรี","truckType":"21-หางพ่วง","fuel":"NGV","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2557","chassis":"FM1JKKA-16531","engine":"J08CVDH13249","regExpiry":"2024-03-31","insuranceExpiry":"2024-03-20","cargoInsExpiry":"2024-06-21"},{"plate":"70-8055 สระบุรี","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"01-รถบริษัท","maker":"HINO","model":"FL1","year":"2553","chassis":"FL1JTKA-12211","engine":"J08C-VD12377","regExpiry":"","insuranceExpiry":"","cargoInsExpiry":""},{"plate":"72-6308 สระบุรี","truckType":"18-รถหัวลาก","fuel":"ดีเซล","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2565","chassis":"MNKFM1AK1XHX20728","engine":"A09CTHH67577","regExpiry":"2024-03-31","insuranceExpiry":"2024-06-07","cargoInsExpiry":"2024-06-11"},{"plate":"72-6309 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2565","chassis":"P65-0066","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"72-6317 สระบุรี","truckType":"18-รถหัวลาก","fuel":"ดีเซล","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2565","chassis":"MNKFM1AK1XHX20731","engine":"A09CTHH67581","regExpiry":"2024-03-31","insuranceExpiry":"2024-06-07","cargoInsExpiry":"2024-06-14"},{"plate":"72-6318 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2565","chassis":"P65-0067","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"72-6329 สระบุรี","truckType":"18-รถหัวลาก","fuel":"ดีเซล","dept":"01-รถบริษัท","maker":"HINO","model":"FM1","year":"2565","chassis":"MNKFM1AK1XH20730","engine":"A09CTHH67580","regExpiry":"2024-03-31","insuranceExpiry":"2024-06-07","cargoInsExpiry":"2024-06-14"},{"plate":"72-6330 สระบุรี","truckType":"21-หางพ่วง","fuel":"","dept":"01-รถบริษัท","maker":"PANUS","model":"","year":"2565","chassis":"P65-0068","engine":"","regExpiry":"","insuranceExpiry":"2024-03-31","cargoInsExpiry":""},{"plate":"ขตก-189 สระบุรี","truckType":"05-จักรยานยนต์","fuel":"","dept":"01-รถบริษัท","maker":"YAMAHA","model":"4D0A00","year":"2554","chassis":"","engine":"","regExpiry":"","insuranceExpiry":"2025-02-01","cargoInsExpiry":""},{"plate":"กจ-5669 สระบุรี","truckType":"04-รถปิคอัพ","fuel":"ดีเซล","dept":"01-รถบริษัท","maker":"NISSAN","model":"","year":"2550","chassis":"MNTCCGD40Z0001754","engine":"YD25031302T","regExpiry":"","insuranceExpiry":"","cargoInsExpiry":"2024-05-01"},{"plate":"70-0654เพชรบูรณ์","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"11-รถร่วมหกล้อระยอง","maker":"ISUZU","model":"FRR90LM","year":"2556","chassis":"MP1FRR90LBT000659","engine":"4HK1-073654","regExpiry":"2024-12-31","insuranceExpiry":"2024-12-12","cargoInsExpiry":"2024-12-15"},{"plate":"70-0705มหาสารคาม","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"11-รถร่วมหกล้อระยอง","maker":"ISUZU","model":"NPR66LX5T","year":"","chassis":"NPR66PX5T-7104044","engine":"4HF1-516108","regExpiry":"2024-03-31","insuranceExpiry":"2024-05-19","cargoInsExpiry":"2025-05-27"},{"plate":"70-1254สระแก้ว","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"11-รถร่วมหกล้อระยอง","maker":"ISUZU","model":"NPR66PX5","year":"","chassis":"NPR66PX5T-7103478","engine":"4HFI-464036","regExpiry":"2024-03-31","insuranceExpiry":"2025-01-24","cargoInsExpiry":"2025-01-30"},{"plate":"70-1612สระแก้ว","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"11-รถร่วมหกล้อระยอง","maker":"ISUZU","model":"FC9JJKA","year":"","chassis":"MNKFC9JJKXHX20493","engine":"J05ETDH50944","regExpiry":"2024-03-31","insuranceExpiry":"2024-05-30","cargoInsExpiry":"2024-06-30"},{"plate":"70-1615มหาสารคาม","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"HINO","model":"","year":"","chassis":"FL1MNKA-10249","engine":"EM100-42003","regExpiry":"2024-09-30","insuranceExpiry":"2024-05-15","cargoInsExpiry":"2025-05-18"},{"plate":"70-1751มหาสารคาม","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"ISUZU","model":"FVM34RNM","year":"","chassis":"MP1FVM34RBT000270","engine":"6HK1636046","regExpiry":"2024-03-31","insuranceExpiry":"2024-03-29","cargoInsExpiry":"2024-04-25"},{"plate":"70-3507มหาสารคาม","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"ISUZU","model":"FVM32P","year":"","chassis":"FVM32PR3000321","engine":"6HE1-843351","regExpiry":"2024-03-31","insuranceExpiry":"2024-05-24","cargoInsExpiry":"2024-08-14"},{"plate":"70-6047สระบุรี","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"HINO","model":"FL1JTPA","year":"","chassis":"FL1JTPA-11404","engine":"J08C-TS21865","regExpiry":"2024-10-31","insuranceExpiry":"2024-10-26","cargoInsExpiry":"2024-10-26"},{"plate":"70-7784ระยอง","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"HINO","model":"FM176","year":"","chassis":"FM176-10102","engine":"H07C-TA31385","regExpiry":"2024-09-30","insuranceExpiry":"2024-02-28","cargoInsExpiry":"2024-06-21"},{"plate":"72-6894","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"HINO","model":"FL8JTKA","year":"","chassis":"FL8JTKA-12357","engine":"J08E-UE14795","regExpiry":"2024-06-30","insuranceExpiry":"2024-07-06","cargoInsExpiry":"2024-07-09"},{"plate":"70-8885นครราชสีมา","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"11-รถร่วมหกล้อระยอง","maker":"ISUZU","model":"NPR75K5NAH","year":"","chassis":"NP1NPR75K8T103154","engine":"4HK1-971965","regExpiry":"2024-03-31","insuranceExpiry":"2024-04-20","cargoInsExpiry":"2025-02-02"},{"plate":"71-0415ระยอง","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"11-รถร่วมหกล้อระยอง","maker":"ISUZU","model":"NPR61L","year":"","chassis":"NPR61L-7104847","engine":"4BG1-167289","regExpiry":"2024-03-31","insuranceExpiry":"2024-09-23","cargoInsExpiry":"2025-01-30"},{"plate":"71-0562เพชรบุรี","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"21-รถร่วมหกล้อชลบุรี","maker":"HINO","model":"KM779","year":"","chassis":"KM779-14691","engine":"W04D-B17771","regExpiry":"2024-12-31","insuranceExpiry":"2024-02-19","cargoInsExpiry":"2025-02-01"},{"plate":"71-1977ระยอง","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"11-รถร่วมหกล้อระยอง","maker":"ISUZU","model":"NPR70LY","year":"","chassis":"NPR70LY-7403171","engine":"4HE1-550786","regExpiry":"2024-03-31","insuranceExpiry":"2024-03-03","cargoInsExpiry":"2024-04-25"},{"plate":"71-2660สระบุรี","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"21-รถร่วมหกล้อชลบุรี","maker":"HINO","model":"","year":"","chassis":"MNKYL22H205000008","engine":"W04DTK10123","regExpiry":"2024-09-30","insuranceExpiry":"2024-08-03","cargoInsExpiry":"2025-01-09"},{"plate":"71-2876ระยอง","truckType":"18-รถหัวลาก","fuel":"ดีเซล","dept":"13-รถร่วมเทรเล่อร์ระยอง","maker":"HINO","model":"FM2PKPA","year":"","chassis":"FM2PKPA-11394","engine":"P11C-UB13569","regExpiry":"2024-06-30","insuranceExpiry":"2024-05-31","cargoInsExpiry":"2024-06-06"},{"plate":"71-4668ฉะเชิงเทรา","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"HINO","model":"","year":"","chassis":"FN2PWG-50431","engine":"E13C-TA14320","regExpiry":"2024-03-31","insuranceExpiry":"2024-07-31","cargoInsExpiry":"2025-05-20"},{"plate":"714680ฉะเชิงเทรา","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"HINO","model":"","year":"","chassis":"JHEFS2PTKA0010030","engine":"E13C-TB11465","regExpiry":"2024-06-30","insuranceExpiry":"2024-08-04","cargoInsExpiry":"2025-05-25"},{"plate":"71-9731ระยอง","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"ISUZU","model":"","year":"","chassis":"MP1FVM34RBT000135","engine":"6HK1627849","regExpiry":"2024-09-30","insuranceExpiry":"2024-11-20","cargoInsExpiry":"2024-12-13"},{"plate":"72-1783สระบุรี","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"HINO","model":"FL8JTKA","year":"","chassis":"FL8JTKA-10155","engine":"J08E-UE10939","regExpiry":"2024-12-31","insuranceExpiry":"2024-07-10","cargoInsExpiry":"2024-11-09"},{"plate":"72-6073นครปฐม","truckType":"06-รถหกล้อ","fuel":"ดีเซล","dept":"21-รถร่วมหกล้อชลบุรี","maker":"HINO","model":"FC4JJRA","year":"","chassis":"FC4JJRA10591","engine":"J0SCTF18166","regExpiry":"2024-09-30","insuranceExpiry":"2025-01-26","cargoInsExpiry":"2025-01-09"},{"plate":"73-7087สมุทรปราการ","truckType":"18-รถหัวลาก","fuel":"ดีเซล","dept":"13-รถร่วมเทรเล่อร์ระยอง","maker":"ISUZU","model":"GXZ77NF18","year":"","chassis":"MP1GXZ77N8T002243","engine":"6UZ1-456894","regExpiry":"2024-12-31","insuranceExpiry":"2024-02-21","cargoInsExpiry":"2024-03-09"},{"plate":"71-9735ระยอง","truckType":"10-รถสิบล้อ","fuel":"ดีเซล","dept":"12-รถร่วมสิบล้อระยอง","maker":"HINO","model":"FL1JTPA","year":"","chassis":"FL1JTPA-11338","engine":"J08C-TS21670","regExpiry":"2024-03-31","insuranceExpiry":"2024-10-29","cargoInsExpiry":"2025-02-08"}];
 const TODAY=new Date(2026,5,18);
@@ -1371,7 +1465,7 @@ const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzVIhU-o-1eJbipw-W404R
 const DEPT_SHORT={'01-รถบริษัท':'01 บริษัท','11-รถร่วมหกล้อระยอง':'11 หกล้อ รย.','12-รถร่วมสิบล้อระยอง':'12 สิบล้อ รย.','13-รถร่วมเทรเล่อร์ระยอง':'13 เทรเล่อร์ รย.','21-รถร่วมหกล้อชลบุรี':'21 หกล้อ ชบ.'};
 
 class Component extends DCLogic {
-  state={drivers:SEED.map(normDriver),view:'list',selectedCode:null,search:'',fleet:'all',statusFilter:'all',draft:null,isNew:false,editingCode:null,formError:'',sidebarOpen:true,historyFormOpen:false,historyDraft:null,maintFormOpen:false,maintDraft:null,section:'jobs',trucks:TRUCK_SEED.map(normTruck),truckView:'list',truckSelectedId:null,truckSearch:'',truckDeptFilter:'all',truckStatusFilter:'all',truckDraft:null,truckIsNew:false,truckFormError:'',syncStatus:'idle',jobs:[],jobView:'list',jobSearch:'',jobDateFilter:new Date().toISOString().slice(0,10),jobDpFilter:'all',jobDraft:null,jobIsNew:false,jobFormError:'',jobQrVisible:false,jobQrImgUrl:'',jobQrText:'',savedJobQrVisible:false,savedJobQrImgUrl:'',savedJobQrText:'',savedJobNo:'',pinUnlocked:false,pinModalOpen:false,pinInput:'',pinError:'',effView:'monthly',effMonth:new Date().toISOString().slice(0,7),effTruckFilter:''};
+  state={drivers:SEED.map(normDriver),view:'list',selectedCode:null,search:'',fleet:'all',statusFilter:'all',draft:null,isNew:false,editingCode:null,formError:'',sidebarOpen:true,historyFormOpen:false,historyDraft:null,maintFormOpen:false,maintDraft:null,section:'jobs',trucks:TRUCK_SEED.map(normTruck),truckView:'list',truckSelectedId:null,truckSearch:'',truckDeptFilter:'all',truckStatusFilter:'all',truckDraft:null,truckIsNew:false,truckFormError:'',syncStatus:'idle',jobs:[],jobView:'list',jobSearch:'',jobDateFrom:new Date().toISOString().slice(0,10),jobDateTo:new Date().toISOString().slice(0,10),jobDpFilter:'all',jobDraft:null,jobIsNew:false,jobFormError:'',jobQrVisible:false,jobQrImgUrl:'',jobQrText:'',savedJobQrVisible:false,savedJobQrImgUrl:'',savedJobQrText:'',savedJobNo:'',pinUnlocked:false,pinModalOpen:false,pinInput:'',pinError:'',qrBaseUrl:'',effView:'monthly',effMonth:new Date().toISOString().slice(0,7),effTruckFilter:'',driverSort:{col:'',dir:'asc'},truckSort:{col:'',dir:'asc'}};
 
   componentWillUnmount(){window.removeEventListener('beforeunload',this._beforeUnload);}
   componentDidMount(){
@@ -1379,6 +1473,7 @@ class Component extends DCLogic {
       try{const S=this.state;localStorage.setItem('transport_autosave',JSON.stringify({version:2,exportedAt:new Date().toISOString(),drivers:S.drivers,trucks:S.trucks,jobs:S.jobs}));}catch(e){}
     };
     window.addEventListener('beforeunload',this._beforeUnload);
+    try{const q=localStorage.getItem('qrBaseUrl');if(q)this.setState({qrBaseUrl:q});}catch(e){}
     try{const s=localStorage.getItem('driverReg_v2');if(s){const d=JSON.parse(s);if(Array.isArray(d)&&d.length)this.setState({drivers:d.map(normDriver)});}}catch(e){}
     try{
       const t=localStorage.getItem('truckReg_v1');
@@ -1417,12 +1512,19 @@ class Component extends DCLogic {
           const pendingCodes=new Set(JSON.parse(localStorage.getItem('driverPendingCodes')||'[]'));
           const localDriversRaw=JSON.parse(localStorage.getItem('driverReg_v2')||'[]');
           const localMap={};localDriversRaw.forEach(d=>{localMap[String(d.code)]=normDriver(d);});
-          const merged=data.drivers.map(normDriver).map(sd=>{
+          const deletedDriverCodes=new Set(JSON.parse(localStorage.getItem('deletedDriverCodes')||'[]'));
+          const merged=data.drivers.map(normDriver).filter(sd=>!deletedDriverCodes.has(String(sd.code))).map(sd=>{
             const ck=String(sd.code);
-            if(pendingCodes.has(ck)){const loc=localMap[ck];if(loc&&JSON.stringify(normDriver(sd))===JSON.stringify(loc)){pendingCodes.delete(ck);return sd;}return loc||sd;}
+            if(pendingCodes.has(ck)){
+              const loc=localMap[ck];
+              if(loc&&JSON.stringify(normDriver(sd))===JSON.stringify(loc)){pendingCodes.delete(ck);return sd;}
+              return loc||sd;
+            }
             return sd;
           });
-          Object.keys(localMap).forEach(c=>{if(!merged.find(d=>String(d.code)===c))merged.push(localMap[c]);});
+          Object.keys(localMap).forEach(c=>{if(!deletedDriverCodes.has(c)&&!merged.find(d=>String(d.code)===c))merged.push(localMap[c]);});
+          [...deletedDriverCodes].forEach(c=>{if(!data.drivers.find(d=>String(d.code)===c))deletedDriverCodes.delete(c);});
+          try{localStorage.setItem('deletedDriverCodes',JSON.stringify([...deletedDriverCodes]));}catch(e){}
           try{localStorage.setItem('driverPendingCodes',JSON.stringify([...pendingCodes]));}catch(e){}
           this.setState({drivers:merged});
           try{localStorage.setItem('driverReg_v2',JSON.stringify(merged));}catch(e){}
@@ -1431,18 +1533,42 @@ class Component extends DCLogic {
           const pendingPlates=new Set(JSON.parse(localStorage.getItem('truckPendingPlates')||'[]'));
           const localTrucksRaw=JSON.parse(localStorage.getItem('truckReg_v1')||'[]');
           const localMap={};localTrucksRaw.forEach(t=>{localMap[t.plate]=normTruck(t);});
-          const merged=data.trucks.map(normTruck).map(st=>{
-            if(pendingPlates.has(st.plate)){const loc=localMap[st.plate];if(loc&&JSON.stringify(normTruck(st))===JSON.stringify(loc)){pendingPlates.delete(st.plate);return st;}return loc||st;}
+          const deletedTruckPlates=new Set(JSON.parse(localStorage.getItem('deletedTruckPlates')||'[]'));
+          const merged=data.trucks.map(normTruck).filter(st=>!deletedTruckPlates.has(st.plate)).map(st=>{
+            if(pendingPlates.has(st.plate)){
+              const loc=localMap[st.plate];
+              if(loc&&JSON.stringify(normTruck(st))===JSON.stringify(loc)){pendingPlates.delete(st.plate);return st;}
+              return loc||st;
+            }
             return st;
           });
-          Object.keys(localMap).forEach(p=>{if(!merged.find(t=>t.plate===p))merged.push(localMap[p]);});
+          Object.keys(localMap).forEach(p=>{if(!deletedTruckPlates.has(p)&&!merged.find(t=>t.plate===p))merged.push(localMap[p]);});
+          [...deletedTruckPlates].forEach(p=>{if(!data.trucks.find(t=>t.plate===p))deletedTruckPlates.delete(p);});
+          try{localStorage.setItem('deletedTruckPlates',JSON.stringify([...deletedTruckPlates]));}catch(e){}
           try{localStorage.setItem('truckPendingPlates',JSON.stringify([...pendingPlates]));}catch(e){}
           this.setState({trucks:merged});
           try{localStorage.setItem('truckReg_v1',JSON.stringify(merged));}catch(e){}
         }
         // Sheets ว่าง → push ข้อมูลปัจจุบันขึ้น
         const hasJobs=data.jobs&&Array.isArray(data.jobs)&&data.jobs.length>0;
-        if(hasJobs){const j=data.jobs.map(normJob);this.setState({jobs:j});try{localStorage.setItem('jobReg_v1',JSON.stringify(j));}catch(e){}}
+        if(hasJobs){
+          const pendingIds=new Set(JSON.parse(localStorage.getItem('jobPendingIds')||'[]'));
+          const localJobsRaw=JSON.parse(localStorage.getItem('jobReg_v1')||'[]');
+          const localMap={};localJobsRaw.forEach(j=>{localMap[String(j.id)]=normJob(j);});
+          const merged=data.jobs.map(normJob).map(sj=>{
+            const sk=String(sj.id);
+            if(pendingIds.has(sk)){
+              const loc=localMap[sk];
+              if(loc&&JSON.stringify(normJob(sj))===JSON.stringify(loc)){pendingIds.delete(sk);return sj;}
+              return loc||sj;
+            }
+            return sj;
+          });
+          Object.keys(localMap).forEach(id=>{if(!merged.find(j=>String(j.id)===id))merged.push(localMap[id]);});
+          try{localStorage.setItem('jobPendingIds',JSON.stringify([...pendingIds]));}catch(e){}
+          this.setState({jobs:merged});
+          try{localStorage.setItem('jobReg_v1',JSON.stringify(merged));}catch(e){}
+        }
         if(!hasDrivers||!hasTrucks){
           const S=this.state;
           this.pushToSheets(!hasDrivers?S.drivers:undefined,!hasTrucks?S.trucks:undefined,undefined);
@@ -1482,9 +1608,11 @@ class Component extends DCLogic {
   }
   persist(drivers,changedCode){try{localStorage.setItem('driverReg_v2',JSON.stringify(drivers));}catch(e){}if(changedCode){try{const p=new Set(JSON.parse(localStorage.getItem('driverPendingCodes')||'[]'));p.add(String(changedCode));localStorage.setItem('driverPendingCodes',JSON.stringify([...p]));}catch(e){}}const toSend=changedCode?drivers.filter(d=>String(d.code)===String(changedCode)):drivers;this.pushToSheets(toSend,undefined,undefined);}
   persistTrucks(trucks,changedPlate){try{localStorage.setItem('truckReg_v1',JSON.stringify(trucks));}catch(e){}if(changedPlate){try{const p=new Set(JSON.parse(localStorage.getItem('truckPendingPlates')||'[]'));p.add(changedPlate);localStorage.setItem('truckPendingPlates',JSON.stringify([...p]));}catch(e){}}const toSend=changedPlate?trucks.filter(t=>t.plate===changedPlate):trucks;this.pushToSheets(undefined,toSend,undefined);}
-  persistJobs(jobs,changedId){try{localStorage.setItem('jobReg_v1',JSON.stringify(jobs));}catch(e){}const toSend=changedId?jobs.filter(j=>String(j.id)===String(changedId)):jobs;this.pushToSheets(undefined,undefined,toSend);}
+  persistJobs(jobs,changedId){try{localStorage.setItem('jobReg_v1',JSON.stringify(jobs));}catch(e){}if(changedId){try{const p=new Set(JSON.parse(localStorage.getItem('jobPendingIds')||'[]'));p.add(String(changedId));localStorage.setItem('jobPendingIds',JSON.stringify([...p]));}catch(e){}}const toSend=changedId?jobs.filter(j=>String(j.id)===String(changedId)):jobs;this.pushToSheets(undefined,undefined,toSend);}
   scrollMain(){try{document.querySelector('main').scrollTo({top:0});}catch(e){}}
 
+  isoToBE(iso){if(!iso)return '';const p=String(iso).slice(0,10).split('-');if(p.length!==3||p[0].length!==4)return '';return p[2]+'/'+p[1]+'/'+(+p[0]+543);}
+  beToISO(s){if(!s)return '';const p=String(s).replace(/[.\-]/g,'/').split('/');if(p.length!==3)return '';let[d,m,y]=p.map(v=>+String(v).trim());if(!d||!m||!y)return '';if(y>2400)y-=543;return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
   parseISO(iso){if(!iso)return null;const s=String(iso);// รองรับทั้ง YYYY-MM-DD และ ISO full datetime
 const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p[0],+p[1]-1,+p[2]);return isNaN(d)?null:d;}
   thaiDate(iso){const d=this.parseISO(iso);if(!d)return '—';return d.getDate()+' '+THM[d.getMonth()]+' '+(d.getFullYear()+543);}
@@ -1506,7 +1634,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
   setD(field,val){this.setState(s=>({draft:{...s.draft,[field]:val}}));}
   readFileToDraft(field,e){const f=e.target.files&&e.target.files[0];if(!f)return;if(field==='photo'){const r=new FileReader();r.onload=()=>this.setState(s=>({draft:{...s.draft,photo:r.result}}));r.readAsDataURL(f);}else{this.setState(s=>({draft:{...s.draft,[field]:true}}));}}
   saveForm=()=>{const d=this.state.draft;if(!d||!d.name||!String(d.name||'').trim()){this.setState({formError:'กรุณากรอกชื่อพนักงานขับรถ'});return;}let code=String(d.code||'').trim();if(!code)code='X'+Date.now().toString().slice(-6);const nd={...d,code,name:String(d.name||'')};let drivers;if(this.state.isNew){drivers=[nd,...this.state.drivers];}else{const origCode=String(this.state.selectedCode||'');drivers=this.state.drivers.map(x=>String(x.code)===origCode?nd:x);}this.persist(drivers);this.setState({drivers,selectedCode:code,view:'profile',formError:'',isNew:false,editingCode:null});};
-  deleteDriver=()=>{if(!window.confirm('ยืนยันการลบข้อมูลพนักงานขับรถรายนี้?'))return;const drivers=this.state.drivers.filter(x=>x.code!==this.state.selectedCode);this.persist(drivers);this.setState({drivers,view:'list'});};
+  deleteDriver=()=>{if(!window.confirm('ยืนยันการลบข้อมูลพนักงานขับรถรายนี้?'))return;const code=this.state.selectedCode;try{const del=new Set(JSON.parse(localStorage.getItem('deletedDriverCodes')||'[]'));del.add(String(code));localStorage.setItem('deletedDriverCodes',JSON.stringify([...del]));}catch(e){}const drivers=this.state.drivers.filter(x=>x.code!==code);this.persist(drivers);this.setState({drivers,view:'list'});};
   openHistoryForm=()=>this.setState({historyFormOpen:true,historyDraft:{date:new Date().toISOString().slice(0,10),type:'บันทึกทั่วไป',detail:'',by:''}});
   closeHistoryForm=()=>this.setState({historyFormOpen:false,historyDraft:null});
   setH=(field,val)=>this.setState(s=>({historyDraft:{...s.historyDraft,[field]:val}}));
@@ -1522,17 +1650,17 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
   readTruckFileToDraft(field,e){const f=e.target.files&&e.target.files[0];if(!f)return;this.setState(s=>({truckDraft:{...s.truckDraft,[field]:true}}));}
   readTruckPhotoDraft(e){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>this.setState(s=>({truckDraft:{...s.truckDraft,photo:r.result}}));r.readAsDataURL(f);}
   saveTruckForm=()=>{const t=this.state.truckDraft;if(!t.plate||!t.plate.trim()){this.setState({truckFormError:'กรุณากรอกทะเบียนรถ'});return;}const nt={...t,plate:t.plate.trim()};let trucks;if(this.state.truckIsNew){trucks=[nt,...this.state.trucks];}else{const origPlate=this.state.editingTruckId||this.state.truckSelectedId;trucks=this.state.trucks.map(x=>x.plate===origPlate?nt:x);}this.persistTrucks(trucks,nt.plate);this.setState({trucks,truckSelectedId:nt.plate,truckView:'profile',truckFormError:'',editingTruckId:null});};
-  deleteTruck=()=>{if(!window.confirm('ยืนยันการลบข้อมูลรถคันนี้?'))return;const trucks=this.state.trucks.filter(x=>x.plate!==this.state.truckSelectedId);this.persistTrucks(trucks);this.setState({trucks,truckView:'list'});};
+  deleteTruck=()=>{if(!window.confirm('ยืนยันการลบข้อมูลรถคันนี้?'))return;const plate=this.state.truckSelectedId;try{const del=new Set(JSON.parse(localStorage.getItem('deletedTruckPlates')||'[]'));del.add(plate);localStorage.setItem('deletedTruckPlates',JSON.stringify([...del]));}catch(e){}const trucks=this.state.trucks.filter(x=>x.plate!==plate);this.persistTrucks(trucks);this.setState({trucks,truckView:'list'});};
   openMaintForm=()=>this.setState({maintFormOpen:true,maintDraft:{date:new Date().toISOString().slice(0,10),type:'ซ่อมบำรุงทั่วไป',detail:'',cost:'',by:''}});
   closeMaintForm=()=>this.setState({maintFormOpen:false,maintDraft:null});
   setM=(field,val)=>this.setState(s=>({maintDraft:{...s.maintDraft,[field]:val}}));
   saveMaint=()=>{const m=this.state.maintDraft;if(!m||!m.detail.trim())return;const entry={...m,id:Date.now()};const trucks=this.state.trucks.map(t=>t.plate===this.state.truckSelectedId?{...t,maintenance:[entry,...(t.maintenance||[])]}:t);this.persistTrucks(trucks);this.setState({trucks,maintFormOpen:false,maintDraft:null});};
   deleteMaint=(id)=>{const trucks=this.state.trucks.map(t=>t.plate===this.state.truckSelectedId?{...t,maintenance:(t.maintenance||[]).filter(m=>m.id!==id)}:t);this.persistTrucks(trucks);this.setState({trucks});};
-  openJobNew=()=>{const today=new Date().toISOString().slice(0,10);this.editingJobId=null;const S=this.state;this.setState({jobDraft:{id:null,jobNo:'JB-'+today.replace(/-/g,'').slice(2)+'-'+String(Date.now()).slice(-4),date:today,time:'',driverCode:'',truckPlate:'',origin:'',destination:'',customer:'',weight:'',revenue:'',dispatchPoint:S.jobDpFilter==='all'?'ระยอง':S.jobDpFilter,status:'รับงาน',fuelLiters:'',fuelBaht:'',toll:'',allowance:'',tire:'',repair:'',police:'',misc:'',remark:''},jobIsNew:true,jobView:'form',jobFormError:'',section:'jobs'});this.scrollMain();};
+  openJobNew=()=>{const today=new Date().toISOString().slice(0,10);this.editingJobId=null;const S=this.state;this.setState({jobDraft:{id:null,jobNo:'JB-'+today.replace(/-/g,'').slice(2)+'-'+String(Date.now()).slice(-4),date:today,time:'',driverCode:'',truckPlate:'',origin:'',destination:'',customer:'',weight:'',revenue:'',dispatchPoint:S.jobDpFilter==='all'?'ระยอง':S.jobDpFilter,status:'รับงาน',fuelLiters:'',fuelBaht:'',toll:'',allowance:'',tire:'',repair:'',police:'',misc:'',remark:'',driverFleet:'',truckDept:'',_originPreset:''},jobIsNew:true,jobView:'form',jobFormError:'',section:'jobs'});this.scrollMain();};
   openJobEdit=(id)=>{const j=this.state.jobs.find(x=>x.id===id);if(!j)return;this.editingJobId=id;this.setState({jobDraft:{...j},jobIsNew:false,jobView:'form',jobFormError:'',section:'jobs'});this.scrollMain();};
   cancelJobForm=()=>this.setState({jobView:'list',jobFormError:''});
   setJ(field,val){this.setState(s=>({jobDraft:{...s.jobDraft,[field]:val}}));}
-  saveJob=()=>{const j=this.state.jobDraft;if(!j||!j.date){this.setState({jobFormError:'กรุณาเลือกวันที่'});return;}const nj=normJob({...j,id:this.editingJobId||Date.now()});let jobs;if(this.state.jobIsNew){jobs=[nj,...this.state.jobs];}else{jobs=this.state.jobs.map(x=>x.id===this.editingJobId?nj:x);}this.persistJobs(jobs,nj.id);const drv=this.state.drivers.find(x=>String(x.code)===String(nj.driverCode));const data={id:nj.id,jobNo:nj.jobNo,date:nj.date,time:nj.time,driverCode:nj.driverCode,driverName:drv?drv.name:'',truckPlate:nj.truckPlate,origin:nj.origin,destination:nj.destination,customer:nj.customer,deliveryNo:nj.deliveryNo,dispatchPoint:nj.dispatchPoint,dispatchTime:nj.dispatchTime};const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data))));const base=location.origin+location.pathname.replace(/[^/]*$/,'');const url=base+'driver.html?d='+b64;const img='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(url);this.setState({jobs,jobView:'list',jobFormError:'',savedJobQrVisible:true,savedJobQrImgUrl:img,savedJobQrText:url,savedJobNo:nj.jobNo||'ใบงาน'});};
+  saveJob=()=>{const j=this.state.jobDraft;if(!j||!j.date){this.setState({jobFormError:'กรุณาเลือกวันที่'});return;}const nj=normJob({...j,id:this.editingJobId||Date.now()});let jobs;if(this.state.jobIsNew){jobs=[nj,...this.state.jobs];}else{jobs=this.state.jobs.map(x=>x.id===this.editingJobId?nj:x);}this.persistJobs(jobs,nj.id);const drv=this.state.drivers.find(x=>String(x.code)===String(nj.driverCode));const data={id:nj.id,jobNo:nj.jobNo,date:nj.date,time:nj.time,driverCode:nj.driverCode,driverName:drv?drv.name:'',truckPlate:nj.truckPlate,origin:nj.origin,destination:nj.destination,customer:nj.customer,deliveryNo:nj.deliveryNo,dispatchPoint:nj.dispatchPoint,dispatchTime:nj.dispatchTime};const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data))));const base=this.state.qrBaseUrl?this.state.qrBaseUrl.replace(/\/+$/,'')+'/':location.origin+location.pathname.replace(/[^/]*$/,'');const url=base+'driver.html?d='+b64;const img='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(url);this.setState({jobs,jobView:'list',jobFormError:'',savedJobQrVisible:true,savedJobQrImgUrl:img,savedJobQrText:url,savedJobNo:nj.jobNo||'ใบงาน'});};
   deleteJob=(id)=>{if(!window.confirm('ยืนยันการลบใบงานนี้?'))return;const jobs=this.state.jobs.filter(x=>x.id!==id);this.persistJobs(jobs);this.setState({jobs});};
 
   renderVals(){
@@ -1551,6 +1679,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
     const stats=statDefs.map(s=>{const active=S.statusFilter===s.key;return{...s,count:s.key==='all'?drivers.length:cnt(s.key),cardStyle:'text-align:left;padding:15px 17px;border-radius:12px;background:#fff;border:1px solid '+(active?'#2f6fb0':'#e4e7ec')+';box-shadow:'+(active?'0 0 0 3px rgba(47,111,176,.12)':'0 1px 2px rgba(16,24,40,.04)')+';',onClick:()=>this.setState({statusFilter:S.statusFilter===s.key?'all':s.key})};});
     const q=S.search.trim().toLowerCase();
     const list=drivers.filter(d=>{if(S.fleet!=='all'&&d.fleet!==S.fleet)return false;if(S.statusFilter==='attention'){if(!['expired','soon'].includes(statusKey(d)))return false;}else if(S.statusFilter!=='all'&&statusKey(d)!==S.statusFilter)return false;if(q){const hay=(d.code+' '+d.name+' '+d.idCard+' '+d.address+' '+d.type).toLowerCase();if(!hay.includes(q))return false;}return true;});
+    if(S.driverSort&&S.driverSort.col){const{col,dir}=S.driverSort;list.sort((a,b)=>{let av,bv;if(col==='code'){av=a.code;bv=b.code;}else if(col==='name'){av=a.name;bv=b.name;}else if(col==='fleet'){av=a.fleet;bv=b.fleet;}else if(col==='startDate'){av=a.startDate||'';bv=b.startDate||'';}else if(col==='licenseExpiry'){av=a.licenseExpiry||'9999-99-99';bv=b.licenseExpiry||'9999-99-99';}else if(col==='idExpiry'){av=a.idExpiry||'9999-99-99';bv=b.idExpiry||'9999-99-99';}else if(col==='status'){const ord={expired:0,soon:1,ok:2,incomplete:3};av=ord[statusKey(a)]??4;bv=ord[statusKey(b)]??4;}if(typeof av==='number')return dir==='asc'?av-bv:bv-av;const cmp=String(av||'').localeCompare(String(bv||''),'th');return dir==='asc'?cmp:-cmp;});}
     const rows=list.map(d=>{const st=this.docStatus(d);const lic=this.expiryCell(d.licenseExpiry);const idc=this.expiryCell(d.idExpiry);const hist=d.history||[];const histTotal=hist.length;const HICON={'รางวัล':'🏆','คำเตือน':'⚠️','บทลงโทษ':'🚫','พฤติกรรมขับรถ':'🚗','บันทึกทั่วไป':'📋'};const histSummaryRow=histTotal>0?Object.entries(HICON).map(([t,ic])=>{const c=hist.filter(h=>h.type===t).length;return c>0?ic+c:null;}).filter(Boolean).join(' '):'—';return{code:d.code,codeFmt:this.codeFmt(d.code),name:d.name,type:d.type,fleet:d.fleet,fleetStyle:this.fleetChip(d.fleet),startDateFmt:this.thaiDate(d.startDate),licText:lic.text,licStyle:lic.style,idText:idc.text,idStyle:idc.style,statusLabel:st.label,statusStyle:this.chip(st.fg,st.bg),histSummaryRow,histColor:histTotal>0?'color:#16263a;font-size:13px;':'color:#b0b8c2;font-size:13px;',onOpen:()=>this.openProfile(d.code)};});
 
     // ---- TRUCKS ----
@@ -1565,7 +1694,18 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
     const truckStats=tStatDefs.map(s=>{const active=S.truckStatusFilter===s.key;return{...s,count:s.key==='all'?trucks.length:tcnt(s.key),cardStyle:'text-align:left;padding:15px 17px;border-radius:12px;background:#fff;border:1px solid '+(active?'#2f6fb0':'#e4e7ec')+';box-shadow:'+(active?'0 0 0 3px rgba(47,111,176,.12)':'0 1px 2px rgba(16,24,40,.04)')+';',onClick:()=>this.setState({truckStatusFilter:S.truckStatusFilter===s.key?'all':s.key})};});
     const tq=S.truckSearch.trim().toLowerCase();
     const tList=trucks.filter(t=>{if(S.truckDeptFilter!=='all'&&t.dept!==S.truckDeptFilter)return false;if(S.truckStatusFilter==='attention'){if(!['expired','soon'].includes(tStatusKey(t)))return false;}else if(S.truckStatusFilter!=='all'&&tStatusKey(t)!==S.truckStatusFilter)return false;if(tq){const hay=(t.plate+' '+t.truckType+' '+t.dept+' '+t.owner+' '+t.ownerIdCard+' '+t.maker).toLowerCase();if(!hay.includes(tq))return false;}return true;});
+    if(S.truckSort&&S.truckSort.col){const{col,dir}=S.truckSort;tList.sort((a,b)=>{let av,bv;if(col==='plate'){av=a.plate;bv=b.plate;}else if(col==='truckType'){av=a.truckType;bv=b.truckType;}else if(col==='dept'){av=a.dept;bv=b.dept;}else if(col==='regExpiry'){av=a.regExpiry||'9999-99-99';bv=b.regExpiry||'9999-99-99';}else if(col==='insuranceExpiry'){av=a.insuranceExpiry||'9999-99-99';bv=b.insuranceExpiry||'9999-99-99';}else if(col==='cargoInsExpiry'){av=a.cargoInsExpiry||'9999-99-99';bv=b.cargoInsExpiry||'9999-99-99';}else if(col==='status'){const ord={expired:0,soon:1,ok:2,incomplete:3};av=ord[tStatusKey(a)]??4;bv=ord[tStatusKey(b)]??4;}if(typeof av==='number')return dir==='asc'?av-bv:bv-av;const cmp=String(av||'').localeCompare(String(bv||''),'th');return dir==='asc'?cmp:-cmp;});}
     const truckRows=tList.map(t=>{const st=this.truckDocStatus(t);const ins=this.expiryCell(t.insuranceExpiry);const cargo=this.expiryCell(t.cargoInsExpiry);const reg=this.expiryCell(t.regExpiry);const mCnt=(t.maintenance||[]).length;const mText=mCnt>0?(mCnt+' ครั้ง'):'—';const mStyle=mCnt>0?'font-size:13px;font-weight:600;color:#175cd3;':'font-size:13px;color:#b0b8c2;';const ttParts=(t.truckType||'').split('-');const ttCode=ttParts[0]||'';const ttName=ttParts.slice(1).join('-')||t.truckType||'—';return{id:t.plate,plate:t.plate,truckType:t.truckType||'—',ttCode,ttName,dept:t.dept,deptLabel:DEPT_SHORT[t.dept]||t.dept||'—',deptStyle:this.deptChip(t.dept),regText:reg.text,regStyle:reg.style,insText:ins.text,insStyle:ins.style,cargoText:cargo.text,cargoStyle:cargo.style,statusLabel:st.label,statusStyle:this.chip(st.fg,st.bg),maintText:mText,maintStyle:mStyle,onOpen:()=>this.openTruckProfile(t.plate)};});
+
+    // ---- SORT HANDLERS & HEADERS ----
+    const mkSortHdr=(label,col,sortSt,onSort)=>{const active=sortSt.col===col;const icon=active?(sortSt.dir==='asc'?'↑':'↓'):'↕';return{label,icon,style:'padding:11px 15px;font-size:12px;font-weight:600;color:'+(active?'#1d2b3a':'#667085')+';cursor:pointer;user-select:none;display:flex;align-items:center;gap:3px;',onClick:()=>onSort(col)};};
+    const noSortHdr=(label)=>({label,icon:'',style:'padding:11px 15px;font-size:12px;font-weight:600;color:#667085;display:flex;align-items:center;',onClick:null});
+    const onDriverSort=(col)=>{const cur=S.driverSort||{col:'',dir:'asc'};this.setState({driverSort:{col,dir:cur.col===col&&cur.dir==='asc'?'desc':'asc'}});};
+    const onTruckSort=(col)=>{const cur=S.truckSort||{col:'',dir:'asc'};this.setState({truckSort:{col,dir:cur.col===col&&cur.dir==='asc'?'desc':'asc'}});};
+    const ds=S.driverSort||{col:'',dir:'asc'};
+    const ts=S.truckSort||{col:'',dir:'asc'};
+    const driverHeaders=[mkSortHdr('รหัสพนักงาน','code',ds,onDriverSort),mkSortHdr('ชื่อพนักงานขับรถ','name',ds,onDriverSort),mkSortHdr('ฟลีต','fleet',ds,onDriverSort),mkSortHdr('วันที่เริ่มงาน','startDate',ds,onDriverSort),noSortHdr('ประวัติ'),mkSortHdr('ใบขับขี่หมดอายุ','licenseExpiry',ds,onDriverSort),mkSortHdr('บัตร ปชช.หมดอายุ','idExpiry',ds,onDriverSort),mkSortHdr('สถานะเอกสาร','status',ds,onDriverSort)];
+    const truckHeaders=[mkSortHdr('ทะเบียนรถ','plate',ts,onTruckSort),mkSortHdr('ชนิดรถ','truckType',ts,onTruckSort),mkSortHdr('แผนก','dept',ts,onTruckSort),mkSortHdr('ทะเบียนรถ (หมดอายุ)','regExpiry',ts,onTruckSort),mkSortHdr('ประกันภัยรถ (หมดอายุ)','insuranceExpiry',ts,onTruckSort),mkSortHdr('ประกันสินค้า (หมดอายุ)','cargoInsExpiry',ts,onTruckSort),mkSortHdr('สถานะเอกสาร','status',ts,onTruckSort),noSortHdr('ประวัติซ่อมบำรุง')];
 
     // ---- SECTION & SIDEBAR ----
     const isTrucks=S.section==='trucks';
@@ -1617,6 +1757,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
       syncText:syncSm.text,
       syncDotStyle:'width:7px;height:7px;border-radius:50%;flex:none;background:'+syncSm.dot+';',
       onSync:()=>{this.setState({syncStatus:'loading'});fetch(SCRIPT_URL).then(r=>r.json()).then(data=>{if(data.error)throw new Error(data.error);if(data.drivers&&Array.isArray(data.drivers)&&data.drivers.length){const d=data.drivers.map(normDriver);this.setState({drivers:d});try{localStorage.setItem('driverReg_v2',JSON.stringify(d));}catch(e){}}if(data.trucks&&Array.isArray(data.trucks)&&data.trucks.length){const t=data.trucks.map(normTruck);this.setState({trucks:t});try{localStorage.setItem('truckReg_v1',JSON.stringify(t));}catch(e){}}if(data.jobs&&Array.isArray(data.jobs)&&data.jobs.length){const j=data.jobs.map(normJob);this.setState({jobs:j});try{localStorage.setItem('jobReg_v1',JSON.stringify(j));}catch(e){}}this.setState({syncStatus:'ok'});}).catch(()=>this.setState({syncStatus:'error'}));},  
+      driverHeaders,truckHeaders,
       // driver list
       listTitle:{'all':'ทะเบียนพนักงานขับรถ','ระยอง':'ฟลีตระยอง','ชลบุรี':'ฟลีตชลบุรี','เทรลเลอร์':'ฟลีตเทรลเลอร์'}[S.fleet]||'ทะเบียนพนักงานขับรถ',
       rowCount:rows.length,totalCount:drivers.length,
@@ -1643,7 +1784,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
       out.hasPhoto=!!sel.photo;out.noPhoto=!sel.photo;
       out.photoNode=sel.photo?React.createElement('img',{src:sel.photo,style:{width:'100%',height:'100%',objectFit:'cover'}}):null;
       out.personalRows=[{label:'ชื่อ-สกุล',value:sel.name},{label:'เลขที่บัตรประชาชน',value:sel.idCard||'—'},{label:'ที่อยู่',value:sel.address||'—'}];
-      out.workRows=[{label:'รหัสพนักงาน',value:this.codeFmt(sel.code)},{label:'ประเภทรถ',value:sel.type||'—'},{label:'ฟลีต',value:sel.fleet||'—'},{label:'วันที่เริ่มงาน',value:this.thaiDate(sel.startDate)}];
+      out.workRows=[{label:'รหัสพนักงาน',value:this.codeFmt(sel.code)},{label:'ประเภทรถ',value:sel.type||'—'},{label:'ฟลีต',value:sel.fleet||'—'},{label:'เงินเดือน',value:sel.salary?(parseFloat(sel.salary).toLocaleString()+' บาท/เดือน'):'—'},{label:'วันที่เริ่มงาน',value:this.thaiDate(sel.startDate)}];
       out.docs=[mkDoc('ใบขับขี่พนักงานขับรถ','วันหมดอายุ',sel.licenseExpiry,sel.hasLicenseFile,true),mkDoc('บัตรประชาชนพนักงานขับรถ','วันหมดอายุ',sel.idExpiry,sel.hasIdFile,true)];
       out.onEdit=this.openEdit;out.onDelete=this.deleteDriver;
       const HIST_ICON={'รางวัล':'🏆','คำเตือน':'⚠️','บทลงโทษ':'🚫','พฤติกรรมขับรถ':'🚗','บันทึกทั่วไป':'📋'};
@@ -1725,6 +1866,8 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
     out.onPinInput=(e)=>this.setState({pinInput:e.target.value});
     out.onPinSubmit=()=>{const stored=localStorage.getItem('adminPin')||'1234';if(S.pinInput===stored){this.setState({pinUnlocked:true,pinModalOpen:false,pinInput:'',pinError:''});}else{this.setState({pinError:'PIN ไม่ถูกต้อง'});}};
     out.onLockPin=()=>this.setState({pinUnlocked:false});
+    out.qrBaseUrl=S.qrBaseUrl||'';
+    out.onSetQrBaseUrl=(e)=>{const v=e.target.value;this.setState({qrBaseUrl:v});try{localStorage.setItem('qrBaseUrl',v);}catch(ex){}};
 
     // active draft (driver form or truck form)
     const isTruckFormActive=S.section==='trucks'&&S.truckView==='form';
@@ -1740,9 +1883,13 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
     out.onType=(e)=>this.setD('type',e.target.value);
     out.onFleet=(e)=>this.setD('fleet',e.target.value);
     out.onAddress=(e)=>this.setD('address',e.target.value);
+    out.onDriverSalary=(e)=>this.setD('salary',e.target.value);
     out.onStartDate=(e)=>this.setD('startDate',e.target.value);
     out.onLicenseExpiry=(e)=>this.setD('licenseExpiry',e.target.value);
     out.onIdExpiry=(e)=>this.setD('idExpiry',e.target.value);
+    out.beDateStartDate=this.isoToBE(dd.startDate);
+    out.beDateLicenseExpiry=this.isoToBE(dd.licenseExpiry);
+    out.beDateIdExpiry=this.isoToBE(dd.idExpiry);
     out.onPhoto=(e)=>this.readFileToDraft('photo',e);
     out.onLicenseFile=(e)=>this.readFileToDraft('hasLicenseFile',e);
     out.onIdFile=(e)=>this.readFileToDraft('hasIdFile',e);
@@ -1773,6 +1920,29 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
     out.onInsuranceExpiry=(e)=>this.setT('insuranceExpiry',e.target.value);
     out.onOwnerIdExpiry=(e)=>this.setT('ownerIdExpiry',e.target.value);
     out.onCargoInsExpiry=(e)=>this.setT('cargoInsExpiry',e.target.value);
+    const dt2=S.truckDraft||{};
+    out.beDateContractDate=this.isoToBE(dt2.contractDate);
+    out.beDateRegExpiry=this.isoToBE(dt2.regExpiry);
+    out.beDateInsuranceExpiry=this.isoToBE(dt2.insuranceExpiry);
+    out.beDateOwnerIdExpiry=this.isoToBE(dt2.ownerIdExpiry);
+    out.beDateCargoInsExpiry=this.isoToBE(dt2.cargoInsExpiry);
+    // BE Date Picker engine
+    const _bp=(iso)=>{if(!iso)return{day:'',month:'',yearBE:''};const p=iso.split('-');return{day:p[2]||'',month:p[1]||'',yearBE:p[0]?String(+p[0]+543):''};};
+    const _bc=(d,m,y)=>{if(!y)return '';return (+y-543)+'-'+String(+m||1).padStart(2,'0')+'-'+String(+d||1).padStart(2,'0');};
+    const _mk=(iso,set)=>{const c=_bp(iso);return{...c,onDay:(e)=>{const x=_bp(iso);set(_bc(e.target.value,x.month,x.yearBE));},onMonth:(e)=>{const x=_bp(iso);set(_bc(x.day,e.target.value,x.yearBE));},onYear:(e)=>{const x=_bp(iso);set(_bc(x.day,x.month,e.target.value));}};};
+    out.bePicker={
+      startDate:_mk(dd.startDate,v=>this.setD('startDate',v)),
+      licenseExpiry:_mk(dd.licenseExpiry,v=>this.setD('licenseExpiry',v)),
+      idExpiry:_mk(dd.idExpiry,v=>this.setD('idExpiry',v)),
+      contractDate:_mk(dt2.contractDate,v=>this.setT('contractDate',v)),
+      regExpiry:_mk(dt2.regExpiry,v=>this.setT('regExpiry',v)),
+      insuranceExpiry:_mk(dt2.insuranceExpiry,v=>this.setT('insuranceExpiry',v)),
+      ownerIdExpiry:_mk(dt2.ownerIdExpiry,v=>this.setT('ownerIdExpiry',v)),
+      cargoInsExpiry:_mk(dt2.cargoInsExpiry,v=>this.setT('cargoInsExpiry',v))
+    };
+    out.beDayOpts=Array.from({length:31},(_,i)=>({v:String(i+1).padStart(2,'0'),l:String(i+1)}));
+    out.beMonthOpts=[{v:'01',l:'ม.ค.'},{v:'02',l:'ก.พ.'},{v:'03',l:'มี.ค.'},{v:'04',l:'เม.ย.'},{v:'05',l:'พ.ค.'},{v:'06',l:'มิ.ย.'},{v:'07',l:'ก.ค.'},{v:'08',l:'ส.ค.'},{v:'09',l:'ก.ย.'},{v:'10',l:'ต.ค.'},{v:'11',l:'พ.ย.'},{v:'12',l:'ธ.ค.'}];
+    out.beYearOpts=Array.from({length:61},(_,i)=>({v:String(2510+i),l:String(2510+i)}));
     out.onRegFile=(e)=>this.readTruckFileToDraft('hasRegFile',e);
     out.onInsuranceFile=(e)=>this.readTruckFileToDraft('hasInsuranceFile',e);
     out.onOwnerIdFile=(e)=>this.readTruckFileToDraft('hasOwnerIdFile',e);
@@ -1844,23 +2014,35 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
     }
     // ---- JOBS renderVals ----
     out.jobSearch=S.jobSearch;out.onJobSearch=(e)=>this.setState({jobSearch:e.target.value});
-    out.jobDateFilter=S.jobDateFilter;out.onJobDateFilter=(e)=>this.setState({jobDateFilter:e.target.value});
+    out.jobDateFrom=S.jobDateFrom||'';out.jobDateTo=S.jobDateTo||'';
+    out.onJobDateFrom=(e)=>this.setState({jobDateFrom:e.target.value});
+    out.onJobDateTo=(e)=>this.setState({jobDateTo:e.target.value});
     out.onAddNewJob=this.openJobNew;
     if(S.section==='jobs'){
       const jobs=S.jobs;
       const jq=S.jobSearch.trim().toLowerCase();
       const jobList=jobs.filter(j=>{
         if(S.jobDpFilter!=='all'&&j.dispatchPoint!==S.jobDpFilter)return false;
-        if(S.jobDateFilter&&j.date!==S.jobDateFilter)return false;
-        if(jq){const hay=(j.jobNo+' '+(S.drivers.find(d=>d.code===j.driverCode)||{name:''}).name+' '+j.truckPlate+' '+j.customer+' '+j.origin+' '+j.destination).toLowerCase();if(!hay.includes(jq))return false;}
+        if(S.jobDateFrom&&j.date<S.jobDateFrom)return false;
+        if(S.jobDateTo&&j.date>S.jobDateTo)return false;
+        if(jq){const hay=(j.jobNo+' '+(S.drivers.find(d=>String(d.code)===String(j.driverCode))||{name:''}).name+' '+j.truckPlate+' '+j.customer+' '+j.origin+' '+j.destination).toLowerCase();if(!hay.includes(jq))return false;}
         return true;
       }).sort((a,b)=>b.date.localeCompare(a.date)||(b.id-a.id));
-      const driverName=(code)=>{const d=S.drivers.find(x=>x.code===code);return d?d.name:'';};
-      const jobRows=jobList.map(j=>{const dn=driverName(j.driverCode);const totalExp=[j.fuelBaht,j.toll,j.allowance,j.tire,j.repair,j.police,j.misc].reduce((s,v)=>s+(parseFloat(v)||0),0);const rev=parseFloat(j.revenue)||0;const profit=rev-totalExp;return{...j,dateFmt:this.thaiDate(j.date),driverName:dn||'—',statusStyle:j.status==='เสร็จสิ้น'?this.chip('#067647','#ecfdf3'):this.chip('#b54708','#fffaeb'),revenueText:rev?'฿'+Math.round(rev).toLocaleString():'—',expText:totalExp?'฿'+Math.round(totalExp).toLocaleString():'—',profitText:profit!==0?'฿'+Math.abs(Math.round(profit)).toLocaleString():'—',profitStyle:profit>=0?'color:#067647;font-weight:600;':'color:#b42318;font-weight:600;',dpChip:this.fleetChip(j.dispatchPoint),onEdit:()=>this.openJobEdit(j.id),onDelete:()=>this.deleteJob(j.id)};});
+      const driverName=(code)=>{if(!code)return '';const d=S.drivers.find(x=>String(x.code)===String(code));return d?d.name:'';};
+      const drvSt=(j)=>{if(j.documentTime)return{label:'📄 ส่งเอกสาร',style:this.chip('#175cd3','#eff4ff')};if(j.completionTime)return{label:'✅ ส่งสำเร็จ',style:this.chip('#067647','#ecfdf3')};if(j.arrivalTime)return{label:'📍 ถึงลูกค้า',style:this.chip('#2d6a4f','#d8f3dc')};if(j.pickupTime)return{label:'📦 รับสินค้า',style:this.chip('#b54708','#fffaeb')};if(j.dispatchTime)return{label:'🚀 รับงานแล้ว',style:this.chip('#475467','#f2f4f7')};return{label:'—',style:'color:#b0b8c2;font-size:13px;'};};
+      const jobStatusChip=(s)=>{if(s==='เสร็จสิ้น')return this.chip('#067647','#ecfdf3');if(s==='จ่ายงาน')return this.chip('#b54708','#fffaeb');return this.chip('#175cd3','#eff4ff');};
+      const jobRows=jobList.map(j=>{const dn=driverName(j.driverCode);const totalExp=[j.fuelBaht,j.toll,j.allowance,j.tire,j.repair,j.police,j.misc].reduce((s,v)=>s+(parseFloat(v)||0),0);const rev=parseFloat(j.revenue)||0;const profit=rev-totalExp;const ds=drvSt(j);return{...j,dateFmt:this.thaiDate(j.date),driverName:dn||'—',statusStyle:jobStatusChip(j.status),driverStatusLabel:ds.label,driverStatusStyle:ds.style,deliveryNoText:j.deliveryNo||'—',revenueText:rev?'฿'+Math.round(rev).toLocaleString():'—',expText:totalExp?'฿'+Math.round(totalExp).toLocaleString():'—',profitText:profit!==0?'฿'+Math.abs(Math.round(profit)).toLocaleString():'—',profitStyle:profit>=0?'color:#067647;font-weight:600;':'color:#b42318;font-weight:600;',dpChip:this.fleetChip(j.dispatchPoint),onEdit:()=>this.openJobEdit(j.id),onDelete:()=>this.deleteJob(j.id)};});
       const jobRevTotal=jobList.reduce((s,j)=>s+(parseFloat(j.revenue)||0),0);
       const jobExpTotal=jobList.reduce((s,j)=>s+[j.fuelBaht,j.toll,j.allowance,j.tire,j.repair,j.police,j.misc].reduce((ss,v)=>ss+(parseFloat(v)||0),0),0);
       const jobProfit=jobRevTotal-jobExpTotal;
-      out.jobRows=jobRows;out.jobRowCount=jobRows.length;out.jobTotalCount=jobs.length;out.jobEmpty=jobRows.length===0;
+      out.jobRows=jobRows;out.jobRowCount=jobRows.length;out.jobTotalCount=jobs.length;out.jobEmpty=jobRows.length===0;out.jobEmptyByDate=jobRows.length===0&&jobs.length>0;out.jobEmptyNoData=jobRows.length===0&&jobs.length===0;out.onClearJobDateFilter=()=>this.setState({jobDateFrom:'',jobDateTo:''});
+      const _sc=(label,count,fg,bg)=>({label,count,cardStyle:'flex:1;min-width:110px;background:'+bg+';border:1px solid #e4e7ec;border-radius:12px;padding:14px 18px;',numStyle:'font-size:30px;font-weight:700;color:'+fg+';line-height:1;'});
+      const _cDone=jobList.filter(j=>j.status==='เสร็จสิ้น').length;
+      const _cDisp=jobList.filter(j=>j.status==='จ่ายงาน').length;
+      const _cPending=jobList.length-_cDone;
+      out.jobStatusCards=[_sc('งานทั้งหมด',jobList.length,'#16263a','#f8fafc'),_sc('ยังไม่เสร็จ',_cPending,'#b54708','#fff'),_sc('จ่ายงานแล้ว',_cDisp,'#175cd3','#fff'),_sc('เสร็จสิ้น',_cDone,'#067647','#fff')];
+      out.driverStatusChips=([{icon:'🚀',label:'รอรับสินค้า',count:jobList.filter(j=>j.dispatchTime&&!j.pickupTime).length},{icon:'📦',label:'รับสินค้าแล้ว',count:jobList.filter(j=>!!j.pickupTime&&!j.arrivalTime).length},{icon:'📍',label:'ถึงลูกค้า',count:jobList.filter(j=>!!j.arrivalTime&&!j.completionTime).length},{icon:'✅',label:'ส่งสำเร็จ',count:jobList.filter(j=>!!j.completionTime&&!j.documentTime).length},{icon:'📄',label:'ส่งเอกสาร',count:jobList.filter(j=>!!j.documentTime).length}]).filter(s=>s.count>0);
+      out.hasDriverChips=out.driverStatusChips.length>0;
       const pinOk=S.pinUnlocked;
       out.jobRevTotal=pinOk?'฿'+Math.round(jobRevTotal).toLocaleString():'฿ ••••••';
       out.jobExpTotal=pinOk?'฿'+Math.round(jobExpTotal).toLocaleString():'฿ ••••••';
@@ -1873,9 +2055,23 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
       out.onPinSubmit=()=>{const stored=localStorage.getItem('adminPin')||'1234';if(S.pinInput===stored){this.setState({pinUnlocked:true,pinModalOpen:false,pinInput:'',pinError:''});}else{this.setState({pinError:'PIN ไม่ถูกต้อง'});}};
       out.onLockPin=()=>this.setState({pinUnlocked:false});
       out.jobProfitStyle=jobProfit>=0?'color:#067647;font-weight:700;':'color:#b42318;font-weight:700;';
-      out.jobDriverOptions=S.drivers.map(d=>({value:d.code,label:d.name}));
-      out.jobTruckOptions=S.trucks.map(t=>({value:t.plate,label:t.plate}));
-      const jd=S.jobDraft||{};out.jd=jd;
+      const jd=S.jobDraft||{};
+      const _dfl=jd.driverFleet||'';const _tdf=jd.truckDept||'';
+      const _filtDrv=_dfl?S.drivers.filter(d=>d.fleet===_dfl):S.drivers;
+      const _filtTrk=_tdf?S.trucks.filter(t=>t.dept===_tdf):S.trucks;
+      out.jobDriverOptions=_filtDrv.map(d=>({value:d.code,label:d.name}));
+      out.jobTruckOptions=_filtTrk.map(t=>({value:t.plate,label:t.plate+(t.truckType?' · '+t.truckType:'')}));
+      out.jobFleetOptions=[{value:'ระยอง',label:'ฟลีตระยอง'},{value:'ชลบุรี',label:'ฟลีตชลบุรี'},{value:'เทรลเลอร์',label:'ฟลีตเทรลเลอร์'}];
+      out.jobTruckDeptOptions=[{value:'รถบริษัท',label:'รถบริษัท'},{value:'รถร่วม',label:'รถร่วม'},{value:'รถผู้บริหาร',label:'รถผู้บริหาร'}];
+      const _origPreset=jd._originPreset!==undefined?jd._originPreset:(ORIGINS.includes(jd.origin)?jd.origin:(jd.origin?'อื่น...':''));
+      out.jdOriginPreset=_origPreset;out.isOriginOther=_origPreset==='อื่น...';
+      out.jd={driverFleet:'',truckDept:'',...jd};
+      const _selTruck=S.trucks.find(t=>t.plate===jd.truckPlate);
+      out.jdTruckTypeLabel=_selTruck?(_selTruck.truckType||''):'';
+      const _selDriver=S.drivers.find(d=>String(d.code)===String(jd.driverCode));
+      out.jdDriverFleetLabel=_selDriver?(_selDriver.fleet||''):'';
+      out.jdDriverTypeLabel=_selDriver?(_selDriver.type||''):'';
+
       out.jobFormTitle=S.jobIsNew?'สร้างใบงานใหม่':'แก้ไขใบงาน';
       out.onJobNo=(e)=>this.setJ('jobNo',e.target.value);out.onJobDate=(e)=>this.setJ('date',e.target.value);out.onJobTime=(e)=>this.setJ('time',e.target.value);
       out.onJobDriver=(e)=>this.setJ('driverCode',e.target.value);out.onJobTruck=(e)=>this.setJ('truckPlate',e.target.value);
@@ -1890,6 +2086,9 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
       out.isDispatcherOther=jd.dispatcher==='อื่นๆ';
       out.onJobDispatcher=(e)=>this.setJ('dispatcher',e.target.value);
       out.onJobDispatcherOther=(e)=>this.setJ('dispatcherOther',e.target.value);
+      out.onJobDriverFleet=(e)=>{this.setState(s=>({jobDraft:{...s.jobDraft,driverFleet:e.target.value,driverCode:''}}));};
+      out.onJobTruckDept=(e)=>{this.setState(s=>({jobDraft:{...s.jobDraft,truckDept:e.target.value,truckPlate:''}}));};
+      out.onJobOriginPreset=(e)=>{const v=e.target.value;this.setState(s=>({jobDraft:{...s.jobDraft,_originPreset:v,origin:v&&v!=='อื่น...'?v:''}}));};
       out.onJobStatus=(e)=>this.setJ('status',e.target.value);out.onJobFuelL=(e)=>this.setJ('fuelLiters',e.target.value);
       out.onJobFuelB=(e)=>this.setJ('fuelBaht',e.target.value);out.onJobToll=(e)=>this.setJ('toll',e.target.value);
       out.onJobAllowance=(e)=>this.setJ('allowance',e.target.value);out.onJobTire=(e)=>this.setJ('tire',e.target.value);
@@ -1911,7 +2110,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
       out.hasArrivalGps=!!(jd.arrivalLat&&jd.arrivalLng);out.arrivalMapUrl='https://maps.google.com/?q='+(jd.arrivalLat||0)+','+(jd.arrivalLng||0);
       out.hasCompletionGps=!!(jd.completionLat&&jd.completionLng);out.completionMapUrl='https://maps.google.com/?q='+(jd.completionLat||0)+','+(jd.completionLng||0);
       out.jobQrVisible=S.jobQrVisible;out.jobQrImgUrl=S.jobQrImgUrl;out.jobQrText=S.jobQrText;
-      out.onShowQr=()=>{const j=S.jobDraft||{};if(!j.jobNo)return;const drv=S.drivers.find(x=>String(x.code)===String(j.driverCode));const data={id:j.id,jobNo:j.jobNo,date:j.date,time:j.time,driverCode:j.driverCode,driverName:drv?drv.name:'',truckPlate:j.truckPlate,origin:j.origin,destination:j.destination,customer:j.customer,deliveryNo:j.deliveryNo,dispatchPoint:j.dispatchPoint,dispatchTime:j.dispatchTime};const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data))));const base=location.origin+location.pathname.replace(/[^/]*$/,'');const url=base+'driver.html?d='+b64;const img='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(url);this.setState({jobQrVisible:true,jobQrImgUrl:img,jobQrText:url});};
+      out.onShowQr=()=>{const j=S.jobDraft||{};if(!j.jobNo)return;const drv=S.drivers.find(x=>String(x.code)===String(j.driverCode));const data={id:j.id,jobNo:j.jobNo,date:j.date,time:j.time,driverCode:j.driverCode,driverName:drv?drv.name:'',truckPlate:j.truckPlate,origin:j.origin,destination:j.destination,customer:j.customer,deliveryNo:j.deliveryNo,dispatchPoint:j.dispatchPoint,dispatchTime:j.dispatchTime};const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data))));const base=S.qrBaseUrl?S.qrBaseUrl.replace(/\/+$/,'')+'/':location.origin+location.pathname.replace(/[^/]*$/,'');const url=base+'driver.html?d='+b64;const img='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(url);this.setState({jobQrVisible:true,jobQrImgUrl:img,jobQrText:url});};
       out.onHideQr=()=>this.setState({jobQrVisible:false,jobQrImgUrl:'',jobQrText:''});
       out.onSaveJob=this.saveJob;out.onCancelJob=this.cancelJobForm;
       out.savedJobQrVisible=S.savedJobQrVisible;out.savedJobQrImgUrl=S.savedJobQrImgUrl;out.savedJobQrText=S.savedJobQrText;out.savedJobNo=S.savedJobNo;out.onCloseSavedQr=()=>this.setState({savedJobQrVisible:false,savedJobQrImgUrl:'',savedJobQrText:'',savedJobNo:''});
@@ -1920,8 +2119,6 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
     return out;
   }
 }
-
 </script>
-<script src="support.js"></script>
 </body>
 </html>
