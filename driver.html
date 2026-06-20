@@ -221,6 +221,7 @@ function render() {
       </div>`;
     return;
   }
+  const dispatchDone = !!job.dispatchTime;
   const allDone = STAGES.every(s => !!upd[s.key + 'Time']);
 
   const stageCards = STAGES.map((s, i) => {
@@ -373,6 +374,21 @@ if (job && job.id != null) {
 render();
 
 // --- เช็คกับ Sheet: ใบงานถูกลบหรือยัง + ดึงสถานะล่าสุด ---
+var _fetchTries = 0;
+function renderFetchError() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="header">
+      <div class="header-logo">ระบบงานขนส่ง · สิงห์ทองทรัครานสปอร์ต</div>
+      <div class="header-title">ยังไม่พบใบงาน</div>
+    </div>
+    <div class="error-box" style="background:#fff7ed;border-color:#fed7aa;color:#9a3412;">
+      <div class="icon">⚠️</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px;color:#16263a;">ยังดึงข้อมูลงานไม่ได้</div>
+      <div style="font-size:13px;color:#667085;line-height:1.6;margin-bottom:16px;">อาจเป็นเพราะใบงานกำลังซิงค์เข้าระบบ<br>หรือสัญญาณอินเทอร์เน็ตไม่เสถียร</div>
+      <button onclick="_fetchTries=0;document.getElementById('app').innerHTML='';render();refreshFromSheet();" style="padding:11px 28px;background:#2f6fb0;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">ลองใหม่อีกครั้ง</button>
+    </div>`;
+}
 function refreshFromSheet() {
   if (!job || job.id == null) return;
   fetch(SCRIPT_URL + '?_=' + Date.now())
@@ -390,7 +406,16 @@ function refreshFromSheet() {
         return;
       }
       const sj = data.jobs.find(x => String(x.id) === String(job.id));
-      if (!sj) return; // ไม่เจอใน Sheet แต่ไม่อยู่ในทะเบียนลบ → อาจยังไม่ sync
+      if (!sj) {
+        // ลิงก์สั้นแต่ยังหาใบงานใน Sheet ไม่เจอ → อาจยังซิงค์ไม่เสร็จ ลองซ้ำ
+        if (job._needFetch && !job.jobNo) {
+          _fetchTries++;
+          if (_fetchTries < 6) { setTimeout(refreshFromSheet, 2500); }
+          else { renderFetchError(); }
+        }
+        return;
+      }
+      _fetchTries = 0;
       // คนจ่ายงานกดปิดงาน (status = เสร็จสิ้น) → ล็อกลิงก์ (ถ้าแก้สถานะกลับ ลิงก์กลับมาใช้ได้เอง)
       if (String(sj.status || '').trim() === 'เสร็จสิ้น') { renderClosed(); return; }
       let needRender = false;
@@ -410,7 +435,14 @@ function refreshFromSheet() {
       if (changed) saveUpdates(job.id, upd);
       if (changed || needRender) render();
     })
-    .catch(() => {}); // ออฟไลน์ → ใช้ข้อมูลจาก QR ต่อไป
+    .catch(() => {
+      // ออฟไลน์/ดึงไม่ได้ → ถ้าเป็นลิงก์สั้นที่ยังไม่มีข้อมูล ให้ลองซ้ำ
+      if (job._needFetch && !job.jobNo) {
+        _fetchTries++;
+        if (_fetchTries < 6) { setTimeout(refreshFromSheet, 2500); }
+        else { renderFetchError(); }
+      }
+    });
 }
 refreshFromSheet();
 // เช็คซ้ำเมื่อกลับมาที่หน้า (เปลี่ยนแท็บกลับมา)
