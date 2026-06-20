@@ -1546,12 +1546,20 @@ class Component extends DCLogic {
           const pendingIds=new Set(JSON.parse(localStorage.getItem('jobPendingIds')||'[]'));
           const localJobsRaw=JSON.parse(localStorage.getItem('jobReg_v1')||'[]');
           const localMap={};localJobsRaw.forEach(j=>{localMap[String(j.id)]=normJob(j);});
+          const driverFields=['pickupTime','pickupLat','pickupLng','arrivalTime','arrivalLat','arrivalLng','completionTime','completionLat','completionLng','documentTime'];
+          const stripDrv=(o)=>{const c={...o};driverFields.forEach(f=>delete c[f]);return c;};
           const merged=data.jobs.map(normJob).map(sj=>{
             const sk=String(sj.id);
             if(pendingIds.has(sk)){
               const loc=localMap[sk];
-              if(loc&&JSON.stringify(normJob(sj))===JSON.stringify(loc)){pendingIds.delete(sk);return sj;}
-              return loc||sj;
+              if(!loc)return sj;
+              // ล้าง pending เมื่อ field ฝั่งคนจ่ายงานตรงกับ Sheet แล้ว
+              if(JSON.stringify(stripDrv(sj))===JSON.stringify(stripDrv(loc)))pendingIds.delete(sk);
+              if(!pendingIds.has(sk))return sj;
+              // ยัง pending → ใช้ field คนจ่ายงานจาก local แต่ field พขร. ดึงจาก Sheet เสมอ
+              const out={...loc};
+              driverFields.forEach(f=>{if(sj[f]!==undefined&&sj[f]!=='')out[f]=sj[f];});
+              return out;
             }
             return sj;
           });
