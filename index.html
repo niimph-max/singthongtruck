@@ -351,6 +351,14 @@
               <input value="{{ draft.idCard }}" onInput="{{ onIdCard }}" placeholder="เลข 13 หลัก" style="width:100%;padding:9px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;background:#fff;" />
             </div>
             <div>
+              <label style="display:block;font-size:12px;color:#475467;font-weight:600;margin-bottom:5px;">วันเกิด <span style="font-weight:400;color:#2f6fb0;">{{ ageLabel }}</span></label>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                <select value="{{ bePicker.birthDate.day }}" onChange="{{ bePicker.birthDate.onDay }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:60px;"><option value="">วัน</option><sc-for list="{{ beDayOpts }}" as="o" hint-placeholder-count="31"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+                <select value="{{ bePicker.birthDate.month }}" onChange="{{ bePicker.birthDate.onMonth }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:68px;"><option value="">เดือน</option><sc-for list="{{ beMonthOpts }}" as="o" hint-placeholder-count="12"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+                <select value="{{ bePicker.birthDate.yearBE }}" onChange="{{ bePicker.birthDate.onYear }}" style="padding:7px 6px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;min-width:80px;"><option value="">ปี พ.ศ.</option><sc-for list="{{ beYearOpts }}" as="o" hint-placeholder-count="61"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+              </div>
+            </div>
+            <div>
               <label style="display:block;font-size:12px;color:#475467;font-weight:600;margin-bottom:5px;">ประเภทรถ</label>
               <select value="{{ draft.type }}" onChange="{{ onType }}" style="width:100%;padding:9px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;background:#fff;">
                 <option value="หกล้อ">หกล้อ</option>
@@ -1420,7 +1428,7 @@ const SEED = [
  {"code":"743415","name":"นายอนันต์ ประทุมชาติ","type":"GIRTL","address":"222/1 หมู่ 5 ต.หนองบัว อ.บ้านค่าย จ.ระยอง","account":"4241493549","idCard":"3210500624618","fleet":"เทรลเลอร์","startDate":"2022-01-04","licenseExpiry":"2030-01-04","idExpiry":"2029-06-01","hasLicenseFile":true,"hasIdFile":true,"photo":null}
 ];
 const TYPE_MAP={'GIR6':'หกล้อ','GIR10':'สิบล้อ','GIRTL':'กึ่งพ่วง 3 เพลา','CL':'กึ่งพ่วง 2 เพลา'};
-function normDriver(d){const r={idCard:'',address:'',fleet:'ระยอง',startDate:'',licenseExpiry:'',idExpiry:'',hasLicenseFile:false,hasIdFile:false,photo:null,history:[],salary:'',...d,code:String(d.code||''),name:String(d.name||''),type:(TYPE_MAP[d.type]||d.type)};if(!Array.isArray(r.history)){try{const p=JSON.parse(r.history);r.history=Array.isArray(p)?p:[];}catch(e){r.history=[];}}return r;}
+function normDriver(d){const r={idCard:'',birthDate:'',address:'',fleet:'ระยอง',startDate:'',licenseExpiry:'',idExpiry:'',hasLicenseFile:false,hasIdFile:false,photo:null,history:[],salary:'',...d,code:String(d.code||''),name:String(d.name||''),type:(TYPE_MAP[d.type]||d.type)};if(!Array.isArray(r.history)){try{const p=JSON.parse(r.history);r.history=Array.isArray(p)?p:[];}catch(e){r.history=[];}}return r;}
 function normTruck(t){
   // parse maintenance ถ้าเป็น string จาก Sheets
   let maint=t.maintenance;
@@ -1612,6 +1620,7 @@ class Component extends DCLogic {
   parseISO(iso){if(!iso)return null;const s=String(iso);// รองรับทั้ง YYYY-MM-DD และ ISO full datetime
 const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p[0],+p[1]-1,+p[2]);return isNaN(d)?null:d;}
   thaiDate(iso){const d=this.parseISO(iso);if(!d)return '—';return d.getDate()+' '+THM[d.getMonth()]+' '+(d.getFullYear()+543);}
+  ageFromISO(iso){if(!iso)return '';const p=String(iso).slice(0,10).split('-');if(p.length!==3||p[0].length!==4)return '';const b=new Date(+p[0],+p[1]-1,+p[2]);if(isNaN(b))return '';const n=new Date();let a=n.getFullYear()-b.getFullYear();const md=n.getMonth()-b.getMonth();if(md<0||(md===0&&n.getDate()<b.getDate()))a--;return (a>=0&&a<130)?a:'';}
   codeFmt(c){c=String(c||'');return c.length>=4?c.slice(0,2)+'-'+c.slice(2):c;}
   daysUntil(iso){const d=this.parseISO(iso);if(!d)return null;return Math.round((d-TODAY)/86400000);}
   chip(fg,bg){return 'display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;color:'+fg+';background:'+bg+';';}
@@ -1625,7 +1634,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
   openProfile(code){this.setState({selectedCode:code,view:'profile'});this.scrollMain();}
   onBack=()=>this.setState({view:'list'});
   openEdit=()=>{const d=this.state.drivers.find(x=>x.code===this.state.selectedCode);if(!d)return;this.setState({draft:{...d},isNew:false,editingCode:d.code,view:'form',formError:''});this.scrollMain();};
-  openNew=()=>{this.setState({editingCode:null,draft:{code:'',name:'',idCard:'',address:'',type:'หกล้อ',fleet:'ระยอง',startDate:'',licenseExpiry:'',idExpiry:'',hasLicenseFile:false,hasIdFile:false,photo:null},isNew:true,view:'form',formError:''});this.scrollMain();};
+  openNew=()=>{this.setState({editingCode:null,draft:{code:'',name:'',idCard:'',birthDate:'',address:'',type:'หกล้อ',fleet:'ระยอง',startDate:'',licenseExpiry:'',idExpiry:'',hasLicenseFile:false,hasIdFile:false,photo:null},isNew:true,view:'form',formError:''});this.scrollMain();};
   cancelForm=()=>this.setState({view:this.state.isNew?'list':'profile',formError:''});
   setD(field,val){this.setState(s=>({draft:{...s.draft,[field]:val}}));}
   readFileToDraft(field,e){const f=e.target.files&&e.target.files[0];if(!f)return;if(field==='photo'){const r=new FileReader();r.onload=()=>this.setState(s=>({draft:{...s.draft,photo:r.result}}));r.readAsDataURL(f);}else{this.setState(s=>({draft:{...s.draft,[field]:true}}));}}
@@ -1782,7 +1791,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
       out.sel={name:sel.name,codeFmt:this.codeFmt(sel.code),type:sel.type,fleet:sel.fleet,fleetStyle:this.fleetChip(sel.fleet),statusLabel:st.label,statusStyle:this.chip(st.fg,st.bg)};
       out.hasPhoto=!!sel.photo;out.noPhoto=!sel.photo;
       out.photoNode=sel.photo?React.createElement('img',{src:sel.photo,style:{width:'100%',height:'100%',objectFit:'cover'}}):null;
-      out.personalRows=[{label:'ชื่อ-สกุล',value:sel.name},{label:'เลขที่บัตรประชาชน',value:sel.idCard||'—'},{label:'ที่อยู่',value:sel.address||'—'}];
+      out.personalRows=[{label:'ชื่อ-สกุล',value:sel.name},{label:'เลขที่บัตรประชาชน',value:sel.idCard||'—'},{label:'วันเกิด',value:(()=>{const d=this.thaiDate(sel.birthDate);if(!sel.birthDate||d==='—')return '—';const a=this.ageFromISO(sel.birthDate);return a?(d+'  ('+a+' ปี)'):d;})()},{label:'ที่อยู่',value:sel.address||'—'}];
       out.workRows=[{label:'รหัสพนักงาน',value:this.codeFmt(sel.code)},{label:'ประเภทรถ',value:sel.type||'—'},{label:'ฟลีต',value:sel.fleet||'—'},{label:'เงินเดือน',value:sel.salary?(parseFloat(sel.salary).toLocaleString()+' บาท/เดือน'):'—'},{label:'วันที่เริ่มงาน',value:this.thaiDate(sel.startDate)}];
       out.docs=[mkDoc('ใบขับขี่พนักงานขับรถ','วันหมดอายุ',sel.licenseExpiry,sel.hasLicenseFile,true),mkDoc('บัตรประชาชนพนักงานขับรถ','วันหมดอายุ',sel.idExpiry,sel.hasIdFile,true)];
       out.onEdit=this.openEdit;out.onDelete=this.deleteDriver;
@@ -1934,7 +1943,10 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
     const _bp=(iso)=>{if(!iso)return{day:'',month:'',yearBE:''};const p=iso.split('-');return{day:p[2]||'',month:p[1]||'',yearBE:p[0]?String(+p[0]+543):''};};
     const _bc=(d,m,y)=>{if(!y)return '';return (+y-543)+'-'+String(+m||1).padStart(2,'0')+'-'+String(+d||1).padStart(2,'0');};
     const _mk=(iso,set)=>{const c=_bp(iso);return{...c,onDay:(e)=>{const x=_bp(iso);set(_bc(e.target.value,x.month,x.yearBE));},onMonth:(e)=>{const x=_bp(iso);set(_bc(x.day,e.target.value,x.yearBE));},onYear:(e)=>{const x=_bp(iso);set(_bc(x.day,x.month,e.target.value));}};};
+    const _age=(iso)=>{if(!iso)return '';const p=String(iso).slice(0,10).split('-');if(p.length!==3||p[0].length!==4)return '';const b=new Date(+p[0],+p[1]-1,+p[2]);if(isNaN(b))return '';const n=new Date();let a=n.getFullYear()-b.getFullYear();const md=n.getMonth()-b.getMonth();if(md<0||(md===0&&n.getDate()<b.getDate()))a--;return (a>=0&&a<130)?('('+a+' \u0e1b\u0e35)'):'';};
+    out.ageLabel=_age(dd.birthDate);
     out.bePicker={
+      birthDate:_mk(dd.birthDate,v=>this.setD('birthDate',v)),
       startDate:_mk(dd.startDate,v=>this.setD('startDate',v)),
       licenseExpiry:_mk(dd.licenseExpiry,v=>this.setD('licenseExpiry',v)),
       idExpiry:_mk(dd.idExpiry,v=>this.setD('idExpiry',v)),
@@ -1946,7 +1958,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;const d=new Date(+p
     };
     out.beDayOpts=Array.from({length:31},(_,i)=>({v:String(i+1).padStart(2,'0'),l:String(i+1)}));
     out.beMonthOpts=[{v:'01',l:'ม.ค.'},{v:'02',l:'ก.พ.'},{v:'03',l:'มี.ค.'},{v:'04',l:'เม.ย.'},{v:'05',l:'พ.ค.'},{v:'06',l:'มิ.ย.'},{v:'07',l:'ก.ค.'},{v:'08',l:'ส.ค.'},{v:'09',l:'ก.ย.'},{v:'10',l:'ต.ค.'},{v:'11',l:'พ.ย.'},{v:'12',l:'ธ.ค.'}];
-    out.beYearOpts=Array.from({length:31},(_,i)=>({v:String(2550+i),l:String(2550+i)}));
+    out.beYearOpts=Array.from({length:81},(_,i)=>({v:String(2500+i),l:String(2500+i)}));
     out.onRegFile=(e)=>this.readTruckFileToDraft('hasRegFile',e);
     out.onInsuranceFile=(e)=>this.readTruckFileToDraft('hasInsuranceFile',e);
     out.onOwnerIdFile=(e)=>this.readTruckFileToDraft('hasOwnerIdFile',e);
