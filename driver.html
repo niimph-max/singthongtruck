@@ -59,7 +59,27 @@
 
 <script>
 const THM = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVIhU-o-1eJbipw-W404R7lWpWIqoIZxCH-5JO5KjZK4HGNqgC4mHAvdN6Z645636u/exec';
+const SUPABASE_URL = 'https://ojttzvcqjqqqullopeqt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qdHR6dmNxanFxcXVsbG9wZXF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNzE1MDAsImV4cCI6MjA5Nzk0NzUwMH0.68VmEegEuj6IrG3XweK4AQEufhzvQiUz79ThL28LOzk';
+const COMPANY_ID = 'singthong';
+const SB_REST = SUPABASE_URL + '/rest/v1';
+const SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
+async function sbGetAll() {
+  const q = '?company_id=eq.' + encodeURIComponent(COMPANY_ID);
+  const A = x => Array.isArray(x) ? x : [];
+  const [dr, jb] = await Promise.all([
+    fetch(SB_REST + '/drivers' + q + '&select=code,data', { headers: SB_HEADERS }).then(r => r.json()),
+    fetch(SB_REST + '/jobs' + q + '&select=id,data,progress,deleted', { headers: SB_HEADERS }).then(r => r.json())
+  ]);
+  return {
+    drivers: A(dr).map(r => ({ ...(r.data || {}), code: r.code })),
+    jobs: A(jb).filter(r => !r.deleted).map(r => ({ ...(r.data || {}), ...(r.progress || {}), id: r.id })),
+    deletedJobIds: A(jb).filter(r => r.deleted).map(r => String(r.id))
+  };
+}
+async function sbDriverUpdate(jobId, updates) {
+  return fetch(SB_REST + '/jobs?company_id=eq.' + encodeURIComponent(COMPANY_ID) + '&id=eq.' + encodeURIComponent(String(jobId)), { method: 'PATCH', headers: SB_HEADERS, body: JSON.stringify({ progress: updates }) }).catch(() => {});
+}
 
 const STAGES = [
   { key: 'pickup',     label: 'รับสินค้า',  icon: '📦', latKey: 'pickupLat',     lngKey: 'pickupLng' },
@@ -129,10 +149,7 @@ function getGps() {
 
 function postToSheets(jobId, jobNo, upd) {
   try {
-    fetch(SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors',
-      body: JSON.stringify({ type: 'driverUpdate', jobId, jobNo, updates: upd })
-    }).catch(() => {});
+    sbDriverUpdate(jobId, upd);
   } catch(e) {}
 }
 
@@ -391,8 +408,7 @@ function renderFetchError() {
 }
 function refreshFromSheet() {
   if (!job || job.id == null) return;
-  fetch(SCRIPT_URL + '?_=' + Date.now())
-    .then(r => r.json())
+  sbGetAll()
     .then(data => {
       if (!data || !Array.isArray(data.jobs)) return;
       // เช็คว่าใบงานถูกลบจริง (อยู่ในทะเบียนใบงานที่ลบ)
