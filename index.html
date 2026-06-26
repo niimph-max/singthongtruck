@@ -1000,12 +1000,19 @@
             <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ผู้จ่ายงาน</label>
             <select value="{{ jd.dispatcher }}" onChange="{{ onJobDispatcher }}" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;background:#fff;">
               <option value="">— เลือกผู้จ่ายงาน —</option>
-              <sc-for list="{{ dispatcherNames }}" as="dn" hint-placeholder-count="6">
+              <sc-for list="{{ dispatcherNames }}" as="dn" hint-placeholder-count="3">
                 <option value="{{ dn }}">{{ dn }}</option>
               </sc-for>
+              <option value="__add__">+ เพิ่มผู้จ่ายงานใหม่…</option>
             </select>
-            <sc-if value="{{ isDispatcherOther }}" hint-placeholder-val="{{ false }}">
-              <input value="{{ jd.dispatcherOther }}" onInput="{{ onJobDispatcherOther }}" placeholder="ระบุชื่อผู้จ่ายงาน" style="width:100%;padding:8px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;margin-top:6px;" />
+            <sc-if value="{{ jobAddingDispatcher }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:6px;margin-top:6px;">
+                <input value="{{ jd.newDispatcher }}" onInput="{{ onJobNewDispatcher }}" placeholder="ชื่อผู้จ่ายงานใหม่" style="flex:1;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
+                <button onClick="{{ onSaveJobDispatcher }}" style="padding:8px 14px;background:#2f6fb0;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">เพิ่ม</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ jobCanDelDispatcher }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ onDelJobDispatcher }}" style="margin-top:6px;background:none;border:none;color:#d92d20;font-size:12px;font-weight:600;cursor:pointer;padding:2px 0;display:inline-flex;align-items:center;gap:4px;">🗑 ลบผู้จ่ายงานนี้</button>
             </sc-if>
           </div>
           <div>
@@ -1087,6 +1094,20 @@
             <div><div style="font-size:11px;color:#98a2b3;margin-bottom:3px;">เส้นทาง</div><div style="font-size:14px;font-weight:600;color:#16263a;">{{ jdSumRoute }}</div></div>
             <div><div style="font-size:11px;color:#98a2b3;margin-bottom:3px;">น้ำหนัก</div><div style="font-size:14px;font-weight:600;color:#16263a;">{{ jdSumWeight }}</div></div>
           </div>
+          <sc-if value="{{ jdHasMultiShip }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:14px;border-top:1px dashed #e4e7ec;padding-top:12px;">
+              <div style="font-size:11px;color:#98a2b3;margin-bottom:8px;">🔗 จุดรับในเที่ยวนี้ (หลายบิล)</div>
+              <sc-for list="{{ jdShipments }}" as="sp" hint-placeholder-count="2">
+                <div style="display:flex;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px solid #f4f6f8;">
+                  <span style="font-size:12px;font-weight:700;color:#2f6fb0;min-width:18px;">{{ sp.idx }}</span>
+                  <div style="flex:1;">
+                    <div style="font-size:13px;font-weight:600;color:#16263a;">บิล {{ sp.bill }} · {{ sp.weightText }}</div>
+                    <div style="font-size:12px;color:#667085;margin-top:1px;">{{ sp.route }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
         </sc-if>
         <sc-if value="{{ jobEditDetails }}" hint-placeholder-val="{{ false }}">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -1156,54 +1177,35 @@
         </div>
       </div>
 
-      <sc-if value="{{ isCompanyTruck }}" hint-placeholder-val="{{ false }}">
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:14px;padding:22px;margin-bottom:16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div style="font-size:14px;font-weight:700;color:#16263a;">ค่าใช้จ่าย</div>
-            <span style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;background:#eaf1fb;color:#2f6fb0;">🏢 รถบริษัท</span>
+        <div style="font-size:14px;font-weight:700;color:#16263a;margin-bottom:4px;">📎 เอกสารแนบสำหรับ พขร.</div>
+        <div style="font-size:12px;color:#98a2b3;margin-bottom:14px;">แนบรูปใบส่งของ/รายละเอียดเที่ยว · พขร. กดดูภาพเต็มได้จากลิงก์</div>
+        <sc-if value="{{ jdHasAttachment }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+            {{ jdAttachmentNode }}
+            <label style="display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:#eaf1fb;color:#2f6fb0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">เปลี่ยนรูป<input type="file" accept="image/*" onChange="{{ onJobAttachment }}" style="display:none;" /></label>
+            <button onClick="{{ onRemoveJobAttachment }}" style="padding:8px 14px;background:#fef3f2;color:#b42318;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">ลบรูป</button>
           </div>
-          <button onClick="{{ onToggleJobExpenses }}" style="background:none;border:none;color:#2f6fb0;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 0;white-space:nowrap;">{{ jobExpenseToggleLabel }}</button>
-        </div>
-        <div style="font-size:12px;color:#98a2b3;margin-top:4px;">ทำหลังจบเที่ยว · {{ jobExpenseSummary }}</div>
-        <sc-if value="{{ jobShowExpenses }}" hint-placeholder-val="{{ false }}">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">น้ำมัน/แก๊ส (ลิตร)</label>
-            <input type="number" value="{{ jd.fuelLiters }}" onInput="{{ onJobFuelL }}" placeholder="0" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">น้ำมัน/แก๊ส (บาท)</label>
-            <input type="number" value="{{ jd.fuelBaht }}" onInput="{{ onJobFuelB }}" placeholder="0" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">เบี้ยเลี้ยงคนขับ (บาท)</label>
-            <input type="number" value="{{ jd.allowance }}" onInput="{{ onJobAllowance }}" placeholder="0" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ทางด่วน/ผ่านทาง (บาท)</label>
-            <input type="number" value="{{ jd.toll }}" onInput="{{ onJobToll }}" placeholder="0" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ค่ายาง/ปะยาง (บาท)</label>
-            <input type="number" value="{{ jd.tire }}" onInput="{{ onJobTire }}" placeholder="0" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ค่าซ่อมฉุกเฉิน (บาท)</label>
-            <input type="number" value="{{ jd.repair }}" onInput="{{ onJobRepair }}" placeholder="0" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">ค่าตำรวจ/ค่าปรับ (บาท)</label>
-            <input type="number" value="{{ jd.police }}" onInput="{{ onJobPolice }}" placeholder="0" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
-          <div>
-            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">เบ็ดเตล็ด (บาท)</label>
-            <input type="number" value="{{ jd.misc }}" onInput="{{ onJobMisc }}" placeholder="0" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
-          </div>
-        </div>
+        </sc-if>
+        <sc-if value="{{ jdNoAttachment }}" hint-placeholder-val="{{ true }}">
+          <label style="display:inline-flex;align-items:center;gap:8px;padding:11px 18px;background:#eaf1fb;color:#2f6fb0;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">📷 เลือกรูปเอกสาร<input type="file" accept="image/*" onChange="{{ onJobAttachment }}" style="display:none;" /></label>
         </sc-if>
       </div>
-      </sc-if>
+
+      <div style="background:#fff;border:1px solid #e4e7ec;border-radius:14px;padding:22px;margin-bottom:16px;">
+        <div style="font-size:14px;font-weight:700;color:#16263a;margin-bottom:4px;">⛽ ค่าน้ำมัน / NGV จ่ายตอนรับงาน</div>
+        <div style="font-size:12px;color:#98a2b3;margin-bottom:16px;">เงินที่จ่ายให้ พขร. ตอนรับงาน (จ่ายได้ทั้งรถบริษัทและรถร่วม) · แสดงในลิงก์ พขร. ด้วย</div>
+        <div style="display:grid;grid-template-columns:240px 1fr;gap:16px;">
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">จำนวน</label>
+            <input value="{{ jd.fuelAdvance }}" onInput="{{ onJobFuelAdvance }}" placeholder="เช่น 5,000 บาท หรือ 50 ลิตร" style="width:100%;padding:10px 12px;border:1px solid #2f6fb0;border-radius:8px;font-size:15px;font-weight:600;color:#1d2b3a;box-sizing:border-box;" />
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#667085;display:block;margin-bottom:5px;">หมายเหตุ</label>
+            <input value="{{ jd.fuelAdvanceNote }}" onInput="{{ onJobFuelAdvanceNote }}" placeholder="เช่น รหัสเติมน้ำมันของปั๊ม / เติม ปตท. / NGV เต็มถัง" style="width:100%;padding:10px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
+          </div>
+        </div>
+      </div>
 
       <sc-if value="{{ isNotCompanyTruck }}" hint-placeholder-val="{{ false }}">
         <div style="background:#fffaeb;border:1px dashed #fedf89;border-radius:14px;padding:16px 22px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
@@ -1307,12 +1309,29 @@
           </button>
         </sc-for>
       </div>
-      <div style="margin-bottom:14px;max-width:380px;">
-        <input value="{{ orderSearch }}" onInput="{{ onOrderSearch }}" placeholder="ค้นหา เลขบิล / ลูกค้า / ต้นทาง / ปลายทาง" style="width:100%;padding:9px 12px;border:1px solid #d0d5dd;border-radius:9px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <input type="date" value="{{ orderDateFrom }}" onInput="{{ onOrderDateFrom }}" style="padding:9px 12px;border:1px solid #d0d5dd;border-radius:9px;font-size:14px;background:#fff;color:#1d2b3a;" />
+          <span style="font-size:13px;color:#667085;white-space:nowrap;">ถึง</span>
+          <input type="date" value="{{ orderDateTo }}" onInput="{{ onOrderDateTo }}" style="padding:9px 12px;border:1px solid #d0d5dd;border-radius:9px;font-size:14px;background:#fff;color:#1d2b3a;" />
+          <button onClick="{{ onClearOrderDate }}" title="ล้างช่วงวันที่" style="padding:9px 11px;background:#f4f6f8;border:1px solid #d0d5dd;border-radius:9px;font-size:13px;color:#475467;font-weight:600;cursor:pointer;white-space:nowrap;">✕ ดูทั้งหมด</button>
+        </div>
+        <input value="{{ orderSearch }}" onInput="{{ onOrderSearch }}" placeholder="ค้นหา เลขบิล / ลูกค้า / ต้นทาง / ปลายทาง" style="flex:1;min-width:240px;max-width:380px;padding:9px 12px;border:1px solid #d0d5dd;border-radius:9px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
       </div>
+      <sc-if value="{{ orderLinkBar }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:12px;background:#eff4ff;border:1px solid #d3e0f7;border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+          <div style="font-size:13px;font-weight:600;color:#175cd3;">เลือกแล้ว {{ orderSelectedCount }} บิล</div>
+          <sc-if value="{{ orderCanLink }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ onLinkTrip }}" style="padding:7px 15px;background:#2f6fb0;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">🔗 ผูกเป็นเที่ยวเดียว</button>
+          </sc-if>
+          <button onClick="{{ onClearSel }}" style="padding:7px 12px;background:none;border:none;color:#667085;font-size:13px;font-weight:600;cursor:pointer;">ยกเลิกเลือก</button>
+        </div>
+      </sc-if>
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);">
-        <div style="display:grid;grid-template-columns:130px 150px 1fr 84px 110px 110px 110px 116px;background:#f8fafc;border-bottom:1px solid #e4e7ec;">
+        <div style="display:grid;grid-template-columns:44px 130px 104px 150px 1fr 84px 110px 110px 110px 116px;background:#f8fafc;border-bottom:1px solid #e4e7ec;">
+          <div style="padding:11px 8px;"></div>
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">เลขที่บิล</div>
+          <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">วันรับแจ้ง</div>
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ลูกค้า</div>
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">ต้นทาง → ปลายทาง</div>
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;">น้ำหนัก</div>
@@ -1322,8 +1341,14 @@
           <div style="padding:11px 15px;font-size:12px;font-weight:600;color:#667085;text-align:right;">จัดการ</div>
         </div>
         <sc-for list="{{ orderRows }}" as="r" hint-placeholder-count="5">
-          <div style="display:grid;grid-template-columns:130px 150px 1fr 84px 110px 110px 110px 116px;border-bottom:1px solid #f0f2f5;align-items:center;">
-            <div onClick="{{ r.onEdit }}" style="padding:12px 15px;font-size:13.5px;font-weight:700;color:#16263a;cursor:pointer;">{{ r.billNo }}</div>
+          <div style="display:grid;grid-template-columns:44px 130px 104px 150px 1fr 84px 110px 110px 110px 116px;border-bottom:1px solid #f0f2f5;align-items:center;background:{{ r.rowBg }};">
+            <div style="padding:12px 8px;display:flex;justify-content:center;"><sc-if value="{{ r.showCheckbox }}" hint-placeholder-val="{{ true }}"><input type="checkbox" checked="{{ r.selected }}" onChange="{{ r.onToggleSel }}" style="width:16px;height:16px;cursor:pointer;" /></sc-if></div>
+            <div onClick="{{ r.onEdit }}" style="padding:12px 15px;cursor:pointer;">
+              <div style="font-size:13.5px;font-weight:700;color:#16263a;"><span style="color:#98a2b3;font-weight:400;">{{ r.billPrefix }}</span>{{ r.billNo }}</div>
+              <sc-if value="{{ r.multiBill }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;font-weight:600;color:#b54708;margin-top:2px;">🔗 {{ r.multiBillText }}</div></sc-if>
+              <sc-if value="{{ r.showTripBadge }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;font-weight:600;color:#175cd3;margin-top:2px;">{{ r.tripBadgeFull }}</div></sc-if>
+            </div>
+            <div onClick="{{ r.onEdit }}" style="padding:12px 15px;font-size:12.5px;color:#475467;cursor:pointer;">{{ r.receivedDate }}</div>
             <div onClick="{{ r.onEdit }}" style="padding:12px 15px;font-size:13px;color:#344054;cursor:pointer;">{{ r.customer }}</div>
             <div onClick="{{ r.onEdit }}" style="padding:12px 15px;font-size:12.5px;color:#475467;cursor:pointer;line-height:1.4;">{{ r.route }}</div>
             <div style="padding:12px 15px;font-size:13px;color:#475467;">{{ r.weight }}</div>
@@ -1331,12 +1356,16 @@
             <div style="padding:12px 15px;font-size:12.5px;color:#475467;">{{ r.requiredDate }}</div>
             <div style="padding:12px 15px;"><span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span></div>
             <div style="padding:10px 15px;display:flex;gap:6px;justify-content:flex-end;align-items:center;">
+              <sc-if value="{{ r.hasTrip }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ r.onUnlink }}" style="padding:6px 9px;background:#fef3f2;color:#b42318;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">เลิกผูก</button>
+              </sc-if>
               <sc-if value="{{ r.canDispatch }}" hint-placeholder-val="{{ true }}">
                 <button onClick="{{ r.onDispatch }}" style="padding:6px 11px;background:#067647;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">จ่ายงาน →</button>
               </sc-if>
               <sc-if value="{{ r.dispatched }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ r.onViewJob }}" style="padding:6px 11px;background:#eff4ff;color:#175cd3;border:1px solid #d3e0f7;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">ดูใบงาน</button>
               </sc-if>
+              <button onClick="{{ r.onDelete }}" style="padding:6px 9px;background:#fef3f2;color:#b42318;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">ลบ</button>
             </div>
           </div>
         </sc-for>
@@ -1477,6 +1506,7 @@
           <input type="month" value="{{ effMonth }}" onInput="{{ onEffMonth }}" style="padding:8px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
           <button onClick="{{ onEffViewMonthly }}" style="{{ effMonthlyBtnStyle }}">รายเดือน</button>
           <button onClick="{{ onEffViewTruck }}" style="{{ effTruckBtnStyle }}">รายรถ</button>
+          <button onClick="{{ onEffViewSettle }}" style="{{ effSettleBtnStyle }}">ปิดงาน &amp; ค่าใช้จ่าย</button>
         </div>
       </div>
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:14px;overflow:hidden;">
@@ -1505,7 +1535,19 @@
             <tbody>
               <sc-for list="{{ effTruckRows }}" as="r" hint-placeholder-count="5">
                 <tr onClick="{{ r.onClickRow }}" style="border-bottom:1px solid #f0f2f5;cursor:pointer;" style-hover="background:#f8fafc;">
-                  <td style="padding:10px 14px;font-weight:600;color:#16263a;white-space:nowrap;">{{ r.plate }}</td>
+                  <td style="padding:10px 14px;font-weight:600;color:#16263a;white-space:nowrap;">
+                    {{ r.plate }}
+                    <sc-if value="{{ r.isTractor }}" hint-placeholder-val="{{ false }}">
+                      <div onClick="{{ effStopRowClick }}" style="display:flex;align-items:center;gap:4px;margin-top:4px;">
+                        <span style="font-size:10.5px;color:#98a2b3;font-weight:400;">🔗 หาง</span>
+                        <select value="{{ r.trailer }}" onClick="{{ effStopRowClick }}" onChange="{{ r.onTrailerChange }}" style="font-size:11px;padding:2px 5px;border:1px solid #e4e7ec;border-radius:6px;color:#475467;background:#fff;font-weight:400;max-width:140px;">
+                          <sc-for list="{{ effTrailerOptions }}" as="o" hint-placeholder-count="2">
+                            <option value="{{ o.value }}">{{ o.label }}</option>
+                          </sc-for>
+                        </select>
+                      </div>
+                    </sc-if>
+                  </td>
                   <td style="padding:10px 14px;color:#475467;white-space:nowrap;">{{ r.driver }}</td>
                   <td style="padding:10px 8px;text-align:right;color:#667085;">{{ r.trips }}</td>
                   <td style="padding:10px 8px;text-align:right;color:#175cd3;font-weight:600;">{{ r.revenue }}</td>
@@ -1555,6 +1597,7 @@
           </select>
           <button onClick="{{ onEffViewMonthly }}" style="{{ effMonthlyBtnStyle }}">รายเดือน</button>
           <button onClick="{{ onEffViewTruck }}" style="{{ effTruckBtnStyle }}">รายรถ</button>
+          <button onClick="{{ onEffViewSettle }}" style="{{ effSettleBtnStyle }}">ปิดงาน &amp; ค่าใช้จ่าย</button>
         </div>
       </div>
       <div style="background:#fff;border:1px solid #e4e7ec;border-radius:14px;overflow:hidden;">
@@ -1586,6 +1629,173 @@
         </table>
       </div>
     </div>
+    </sc-if>
+
+    <!-- ===== EFFICIENCY: SETTLE (ปิดงาน & ค่าใช้จ่าย) ===== -->
+    <sc-if value="{{ isEffSettle }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:26px 30px 60px;">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+        <div>
+          <h1 style="margin:0;font-size:22px;font-weight:700;color:#16263a;">🧾 ปิดงาน &amp; บันทึกค่าใช้จ่าย</h1>
+          <div style="font-size:13px;color:#667085;margin-top:3px;">เฉพาะรถบริษัทที่ พขร. ส่งเอกสารแล้ว · รับเอกสาร → ส่งบัญชี/ลูกค้า → ลงค่าใช้จ่าย</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap;">
+          <input type="month" value="{{ effMonth }}" onInput="{{ onEffMonth }}" style="padding:8px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;" />
+          <button onClick="{{ onEffViewMonthly }}" style="{{ effMonthlyBtnStyle }}">รายเดือน</button>
+          <button onClick="{{ onEffViewTruck }}" style="{{ effTruckBtnStyle }}">รายรถ</button>
+          <button onClick="{{ onEffViewSettle }}" style="{{ effSettleBtnStyle }}">ปิดงาน &amp; ค่าใช้จ่าย</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:11px;margin-bottom:18px;flex-wrap:wrap;">
+        <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:14px 18px;min-width:140px;">
+          <div style="font-size:24px;font-weight:700;line-height:1;color:#16263a;">{{ settleTotalTrips }}</div>
+          <div style="font-size:12px;color:#667085;margin-top:6px;">เที่ยวรถบริษัทเดือนนี้</div>
+        </div>
+        <div style="background:#fffaeb;border:1px solid #fde9c8;border-radius:12px;padding:14px 18px;min-width:140px;">
+          <div style="font-size:24px;font-weight:700;line-height:1;color:#b54708;">{{ settleAwaitDocs }}</div>
+          <div style="font-size:12px;color:#667085;margin-top:6px;">🔴 รอปิดเอกสาร</div>
+        </div>
+        <div style="background:#eff4ff;border:1px solid #d3e0f7;border-radius:12px;padding:14px 18px;min-width:140px;">
+          <div style="font-size:24px;font-weight:700;line-height:1;color:#175cd3;">{{ settleAwaitExp }}</div>
+          <div style="font-size:12px;color:#667085;margin-top:6px;">🟠 รอลงค่าใช้จ่าย</div>
+        </div>
+        <div style="background:#ecfdf3;border:1px solid #c6ebd4;border-radius:12px;padding:14px 18px;min-width:140px;">
+          <div style="font-size:24px;font-weight:700;line-height:1;color:#067647;">{{ settleDone }}</div>
+          <div style="font-size:12px;color:#667085;margin-top:6px;">🟢 เสร็จสมบูรณ์</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:14px 18px;min-width:160px;">
+          <div style="font-size:24px;font-weight:700;line-height:1;color:#b54708;">{{ settleTotalExp }}</div>
+          <div style="font-size:12px;color:#667085;margin-top:6px;">ค่าใช้จ่ายรวมที่ลงแล้ว</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+        <select value="{{ effSettleTruck }}" onChange="{{ onEffSettleTruck }}" style="padding:8px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;">
+          <sc-for list="{{ settleTruckOptions }}" as="o" hint-placeholder-count="4">
+            <option value="{{ o.value }}">{{ o.label }}</option>
+          </sc-for>
+        </select>
+        <select value="{{ effSettleStatus }}" onChange="{{ onEffSettleStatus }}" style="padding:8px 12px;border:1px solid #d0d5dd;border-radius:8px;font-size:13px;color:#1d2b3a;background:#fff;">
+          <option value="all">ทุกสถานะ</option>
+          <option value="awaitDocs">🔴 รอปิดเอกสาร</option>
+          <option value="awaitExp">🟠 รอลงค่าใช้จ่าย</option>
+          <option value="done">🟢 เสร็จสมบูรณ์</option>
+        </select>
+      </div>
+      <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.04);">
+        <div style="overflow-x:auto;">
+          <div style="min-width:1040px;">
+            <div style="display:grid;grid-template-columns:120px 130px 130px 120px 1fr 100px 110px 150px 84px;background:#f8fafc;border-bottom:1px solid #e4e7ec;">
+              <div style="padding:11px 14px;font-size:12px;font-weight:600;color:#667085;">วันที่</div>
+              <div style="padding:11px 14px;font-size:12px;font-weight:600;color:#667085;">เลขใบงาน · บิล</div>
+              <div style="padding:11px 14px;font-size:12px;font-weight:600;color:#667085;">ทะเบียน · พขร.</div>
+              <div style="padding:11px 14px;font-size:12px;font-weight:600;color:#667085;">ลูกค้า</div>
+              <div style="padding:11px 14px;font-size:12px;font-weight:600;color:#667085;">เส้นทาง</div>
+              <div style="padding:11px 14px;font-size:12px;font-weight:600;color:#175cd3;text-align:right;">ค่าขนส่ง</div>
+              <div style="padding:11px 14px;font-size:12px;font-weight:600;color:#b54708;text-align:right;">ค่าใช้จ่าย</div>
+              <div style="padding:11px 14px;font-size:12px;font-weight:600;color:#667085;">สถานะ</div>
+              <div style="padding:11px 14px;font-size:12px;font-weight:600;color:#667085;text-align:right;">จัดการ</div>
+            </div>
+            <sc-for list="{{ settleRows }}" as="r" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:120px 130px 130px 120px 1fr 100px 110px 150px 84px;border-bottom:1px solid #f0f2f5;align-items:center;">
+                <div style="padding:11px 14px;font-size:12.5px;color:#475467;">{{ r.date }}</div>
+                <div style="padding:11px 14px;"><div style="font-size:13px;font-weight:700;color:#16263a;">{{ r.jobNo }}</div><div style="font-size:11.5px;color:#98a2b3;margin-top:2px;">บิล {{ r.bill }}</div></div>
+                <div style="padding:11px 14px;font-size:12.5px;color:#344054;line-height:1.4;">{{ r.plate }}<br /><span style="color:#98a2b3;">{{ r.driver }}</span></div>
+                <div style="padding:11px 14px;font-size:12.5px;color:#475467;">{{ r.customer }}</div>
+                <div style="padding:11px 14px;font-size:12px;color:#667085;line-height:1.4;">{{ r.route }}</div>
+                <div style="padding:11px 14px;font-size:13px;color:#175cd3;font-weight:600;text-align:right;">{{ r.revenue }}</div>
+                <div style="padding:11px 14px;font-size:13px;color:#b54708;font-weight:600;text-align:right;">{{ r.expense }}</div>
+                <div style="padding:11px 14px;"><span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span></div>
+                <div style="padding:9px 14px;text-align:right;"><button onClick="{{ r.onOpen }}" style="padding:6px 14px;background:#2f6fb0;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">เปิด</button></div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ settleEmpty }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:48px;text-align:center;color:#98a2b3;font-size:14px;">ไม่มีงานในเงื่อนไขนี้ — เที่ยวจะเข้าคิวเมื่อ พขร. กด "ส่งเอกสาร" แล้ว</div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== SETTLE MODAL ===== -->
+    <sc-if value="{{ settleModalOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="background:#fff;border-radius:16px;padding:24px;max-width:580px;width:100%;max-height:88vh;overflow:auto;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;">
+            <div>
+              <div style="font-size:17px;font-weight:700;color:#16263a;">{{ sdTitle }}</div>
+              <div style="font-size:12.5px;color:#667085;margin-top:3px;">{{ sdCustomer }} · {{ sdRoute }}</div>
+            </div>
+            <button onClick="{{ onSettleClose }}" style="background:none;border:none;font-size:22px;color:#98a2b3;cursor:pointer;line-height:1;padding:0;">×</button>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:10px;padding:11px 13px;margin-bottom:16px;font-size:12.5px;color:#475467;">⛽ ค่าน้ำมัน/NGV ที่จ่ายตอนรับงาน: <span style="font-weight:600;color:#16263a;">{{ sdFuelAdvanceText }}</span></div>
+
+          <div style="border:1px solid #e4e7ec;border-radius:12px;padding:16px;margin-bottom:14px;">
+            <div style="font-size:13px;font-weight:700;color:#16263a;margin-bottom:10px;">① รับเอกสาร &amp; ปิดงานจ่ายงาน</div>
+            <sc-if value="{{ sdDocsOpen }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size:12px;color:#98a2b3;margin-bottom:10px;">หน.จ่ายงานได้รับเอกสารจาก พขร. แล้วส่งต่อไปที่ไหน</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onClick="{{ onSettleDocsAcct }}" style="flex:1;min-width:120px;padding:11px;background:#eff4ff;color:#175cd3;border:1px solid #d3e0f7;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">📊 ส่งบัญชี</button>
+                <button onClick="{{ onSettleDocsCust }}" style="flex:1;min-width:120px;padding:11px;background:#eff4ff;color:#175cd3;border:1px solid #d3e0f7;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">🏢 ส่งลูกค้า</button>
+                <button onClick="{{ onSettleDocsBoth }}" style="flex:1;min-width:120px;padding:11px;background:#067647;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">✓ ส่งทั้งสอง</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ sdDocsClosed }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#ecfdf3;border:1px solid #c6ebd4;border-radius:9px;padding:11px 13px;">
+                <div style="font-size:13px;font-weight:600;color:#067647;">✓ ปิดเอกสารแล้ว · {{ sdDocsTarget }}</div>
+                <button onClick="{{ onSettleUndoDocs }}" style="background:none;border:none;color:#b42318;font-size:12px;font-weight:600;cursor:pointer;">แก้ไข</button>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="border:1px solid #e4e7ec;border-radius:12px;padding:16px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:700;color:#16263a;margin-bottom:12px;">② บันทึกค่าใช้จ่าย (รถบริษัท)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">น้ำมัน/แก๊ส (ลิตร)</label>
+                <input type="number" value="{{ sd.fuelLiters }}" onInput="{{ onSettleFuelL }}" placeholder="0" style="width:100%;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">น้ำมัน/แก๊ส (บาท)</label>
+                <input type="number" value="{{ sd.fuelBaht }}" onInput="{{ onSettleFuelB }}" placeholder="0" style="width:100%;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">เบี้ยเลี้ยงคนขับ (บาท)</label>
+                <input type="number" value="{{ sd.allowance }}" onInput="{{ onSettleAllowance }}" placeholder="0" style="width:100%;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">ทางด่วน/ผ่านทาง (บาท)</label>
+                <input type="number" value="{{ sd.toll }}" onInput="{{ onSettleToll }}" placeholder="0" style="width:100%;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">ค่ายาง/ปะยาง (บาท)</label>
+                <input type="number" value="{{ sd.tire }}" onInput="{{ onSettleTire }}" placeholder="0" style="width:100%;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">ค่าซ่อมฉุกเฉิน (บาท)</label>
+                <input type="number" value="{{ sd.repair }}" onInput="{{ onSettleRepair }}" placeholder="0" style="width:100%;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">ค่าตำรวจ/ค่าปรับ (บาท)</label>
+                <input type="number" value="{{ sd.police }}" onInput="{{ onSettlePolice }}" placeholder="0" style="width:100%;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:#667085;display:block;margin-bottom:4px;">เบ็ดเตล็ด (บาท)</label>
+                <input type="number" value="{{ sd.misc }}" onInput="{{ onSettleMisc }}" placeholder="0" style="width:100%;padding:8px 11px;border:1px solid #d0d5dd;border-radius:8px;font-size:14px;color:#1d2b3a;box-sizing:border-box;" />
+              </div>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;margin-top:14px;cursor:pointer;font-size:13px;font-weight:600;color:#16263a;">
+              <input type="checkbox" checked="{{ sdExpenseDone }}" onChange="{{ onSettleExpenseDone }}" style="width:17px;height:17px;cursor:pointer;" />
+              ✓ ยืนยันค่าใช้จ่ายครบแล้ว (รวมถึงเที่ยวที่ไม่มีค่าใช้จ่าย)
+            </label>
+          </div>
+
+          <div style="display:flex;gap:9px;justify-content:flex-end;">
+            <button onClick="{{ onSettleClose }}" style="padding:10px 20px;background:#fff;color:#475467;border:1px solid #d0d5dd;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">ยกเลิก</button>
+            <button onClick="{{ onSettleSave }}" style="padding:10px 24px;background:#2f6fb0;color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">บันทึก</button>
+          </div>
+        </div>
+      </div>
     </sc-if>
 
     <!-- ===== PIN MODAL ===== -->
@@ -1668,9 +1878,9 @@ function normTruck(t){
   const boolParse=(v)=>v===true||v==='true'||v==='TRUE';
   // normalize date fields: ตัด timestamp ออก เหลือแค่ YYYY-MM-DD
   const normDate=(v)=>toBkkDate(v);
-  const r={plate:'',truckType:'',fuel:'',dept:'',maker:'',model:'',year:'',color:'',chassis:'',engine:'',weight:'',loadWeight:'',gps:'',owner:'',ownerIdCard:'',account:'',remark:'',maintenance:[],photo:null,contractDate:'',regExpiry:'',hasRegFile:false,insuranceExpiry:'',hasInsuranceFile:false,ownerIdExpiry:'',hasOwnerIdFile:false,cargoInsExpiry:'',hasCargoInsFile:false,hasContractFile:false,salary:'',installment:'',makerOther:'',...t,maintenance:maint,hasRegFile:boolParse(t.hasRegFile),hasInsuranceFile:boolParse(t.hasInsuranceFile),hasOwnerIdFile:boolParse(t.hasOwnerIdFile),hasCargoInsFile:boolParse(t.hasCargoInsFile),hasContractFile:boolParse(t.hasContractFile),regExpiry:normDate(t.regExpiry),insuranceExpiry:normDate(t.insuranceExpiry),ownerIdExpiry:normDate(t.ownerIdExpiry),cargoInsExpiry:normDate(t.cargoInsExpiry),contractDate:normDate(t.contractDate)};if(r.dept&&r.dept.startsWith('01'))r.dept='รถบริษัท';else if(r.dept&&!['รถบริษัท','รถร่วม','รถผู้บริหาร',''].includes(r.dept))r.dept='รถร่วม';if(!Array.isArray(r.maintenance)){try{const p=JSON.parse(r.maintenance);r.maintenance=Array.isArray(p)?p:[];}catch(e){r.maintenance=[];}}return r;}
+  const r={plate:'',truckType:'',fuel:'',dept:'',maker:'',model:'',year:'',color:'',chassis:'',engine:'',weight:'',loadWeight:'',gps:'',owner:'',ownerIdCard:'',account:'',trailerPlate:'',remark:'',maintenance:[],photo:null,contractDate:'',regExpiry:'',hasRegFile:false,insuranceExpiry:'',hasInsuranceFile:false,ownerIdExpiry:'',hasOwnerIdFile:false,cargoInsExpiry:'',hasCargoInsFile:false,hasContractFile:false,salary:'',installment:'',makerOther:'',...t,maintenance:maint,hasRegFile:boolParse(t.hasRegFile),hasInsuranceFile:boolParse(t.hasInsuranceFile),hasOwnerIdFile:boolParse(t.hasOwnerIdFile),hasCargoInsFile:boolParse(t.hasCargoInsFile),hasContractFile:boolParse(t.hasContractFile),regExpiry:normDate(t.regExpiry),insuranceExpiry:normDate(t.insuranceExpiry),ownerIdExpiry:normDate(t.ownerIdExpiry),cargoInsExpiry:normDate(t.cargoInsExpiry),contractDate:normDate(t.contractDate)};if(r.dept&&r.dept.startsWith('01'))r.dept='รถบริษัท';else if(r.dept&&!['รถบริษัท','รถร่วม','รถผู้บริหาร',''].includes(r.dept))r.dept='รถร่วม';if(!Array.isArray(r.maintenance)){try{const p=JSON.parse(r.maintenance);r.maintenance=Array.isArray(p)?p:[];}catch(e){r.maintenance=[];}}return r;}
 function toBkkDate(v){if(!v)return '';const s=String(v);if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;const d=new Date(s);if(isNaN(d))return s.slice(0,10);try{return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);}catch(e){return s.slice(0,10);}}
-function normJob(j){return{id:j.id||0,jobNo:j.jobNo||'',date:toBkkDate(j.date),time:j.time||'',driverCode:String(j.driverCode||''),truckPlate:j.truckPlate||'',origin:j.origin||'',destination:j.destination||'',customer:j.customer||'',deliveryNo:j.deliveryNo||'',weight:j.weight||'',revenue:j.revenue||'',dispatchPoint:j.dispatchPoint||'ระยอง',status:j.status||'รับงาน',fuelLiters:j.fuelLiters||'',fuelBaht:j.fuelBaht||'',toll:j.toll||'',allowance:j.allowance||'',tire:j.tire||'',repair:j.repair||'',police:j.police||'',misc:j.misc||'',remark:j.remark||'',driverNote:j.driverNote||'',createdAt:j.createdAt||'',dispatchTime:j.dispatchTime||'',pickupTime:j.pickupTime||'',pickupLat:j.pickupLat||'',pickupLng:j.pickupLng||'',arrivalTime:j.arrivalTime||'',arrivalLat:j.arrivalLat||'',arrivalLng:j.arrivalLng||'',completionTime:j.completionTime||'',completionLat:j.completionLat||'',completionLng:j.completionLng||'',documentTime:j.documentTime||'',dispatcher:j.dispatcher||'',dispatcherOther:j.dispatcherOther||''};}
+function normJob(j){return{id:j.id||0,jobNo:j.jobNo||'',date:toBkkDate(j.date),time:j.time||'',driverCode:String(j.driverCode||''),truckPlate:j.truckPlate||'',origin:j.origin||'',destination:j.destination||'',customer:j.customer||'',deliveryNo:j.deliveryNo||'',weight:j.weight||'',revenue:j.revenue||'',dispatchPoint:j.dispatchPoint||'ระยอง',status:j.status||'รับงาน',fuelLiters:j.fuelLiters||'',fuelBaht:j.fuelBaht||'',toll:j.toll||'',allowance:j.allowance||'',tire:j.tire||'',repair:j.repair||'',police:j.police||'',misc:j.misc||'',remark:j.remark||'',driverNote:j.driverNote||'',attachment:j.attachment||'',shipments:Array.isArray(j.shipments)?j.shipments:[],fuelAdvance:j.fuelAdvance||'',fuelAdvanceNote:j.fuelAdvanceNote||'',docsClosed:!!j.docsClosed,docsClosedTime:j.docsClosedTime||'',docsTarget:j.docsTarget||'',expenseDone:!!j.expenseDone,createdAt:j.createdAt||'',dispatchTime:j.dispatchTime||'',pickupTime:j.pickupTime||'',pickupLat:j.pickupLat||'',pickupLng:j.pickupLng||'',arrivalTime:j.arrivalTime||'',arrivalLat:j.arrivalLat||'',arrivalLng:j.arrivalLng||'',completionTime:j.completionTime||'',completionLat:j.completionLat||'',completionLng:j.completionLng||'',documentTime:j.documentTime||'',dispatcher:j.dispatcher||'',dispatcherOther:j.dispatcherOther||''};}
 const DISPATCHERS=['ปกรณ์ ลิ้นทอง','วารี ภักดีวาณิช','นันทนา สุขศิลา','สมศักดิ์ ชนะวงษ์','จารพรรณ ขาวสุข','คศิมาภรณ์ ชนะวงศ์','อื่นๆ'];
 const ORIGINS=['รง.เหล็กมาบตาพุต','รง. บ่อวิน NTS','รง. เหล็กท่าหลวง','รง.โมเนีย บ้านบึง','รง. การ์เดียน ระยอง'];
 const CUSTOMER_SEED=['30-004 SCG','30-005 การ์เดียนระยอง','30-006 วีมูฟ','30-008 บุญกิติพัฒน์','30-015 ทาทาสตีล'];
@@ -1680,7 +1890,7 @@ const ORDER_CHANNELS=['อีเมล','ไลน์','โทรศัพท์
 const ORDER_TRUCK_TYPES=['รถปิคอัพ','รถหกล้อ','รถสิบล้อ','รถพ่วง','รถหัวลาก/เทรลเลอร์','อื่นๆ'];
 function normCustomer(c){return {id:c.id||Date.now(),name:c.name||'',contact:c.contact||''};}
 function normOrigin(o){return {id:o.id||Date.now(),name:o.name||''};}
-function normOrder(o){return {id:o.id||0,orderNo:o.orderNo||'',customer:o.customer||'',channel:o.channel||'อีเมล',receivedDate:o.receivedDate?toBkkDate(o.receivedDate):'',product:o.product||'',origin:o.origin||'',destination:o.destination||'',dropPoint:o.dropPoint||'',billNo:o.billNo||'',weight:o.weight||'',truckType:o.truckType||'',requiredDate:o.requiredDate?toBkkDate(o.requiredDate):'',remark:o.remark||'',status:o.status||'รอจัดรถ',jobId:o.jobId||''};}
+function normOrder(o){return {id:o.id||0,orderNo:o.orderNo||'',customer:o.customer||'',channel:o.channel||'อีเมล',receivedDate:o.receivedDate?toBkkDate(o.receivedDate):'',product:o.product||'',origin:o.origin||'',destination:o.destination||'',dropPoint:o.dropPoint||'',billNo:o.billNo||'',weight:o.weight||'',truckType:o.truckType||'',requiredDate:o.requiredDate?toBkkDate(o.requiredDate):'',remark:o.remark||'',custDeliveryNo:o.custDeliveryNo||'',shipmentEnd:o.shipmentEnd?toBkkDate(o.shipmentEnd):'',saleDistrict:o.saleDistrict||'',size:o.size||'',note2:o.note2||'',productGroup:o.productGroup||'',driverNote:o.driverNote||'',shipments:Array.isArray(o.shipments)?o.shipments:[],tripId:o.tripId||'',status:o.status||'รอจัดรถ',jobId:o.jobId||''};}
 const TODAY=new Date(2026,5,18);
 const THM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 // ===== Supabase backend (FleetTruck) =====
@@ -1727,7 +1937,7 @@ async function sbSoftDeleteOrders(keys){for(const k of keys){await fetch(SB_REST
 const DEPT_SHORT={'01-รถบริษัท':'01 บริษัท','11-รถร่วมหกล้อระยอง':'11 หกล้อ รย.','12-รถร่วมสิบล้อระยอง':'12 สิบล้อ รย.','13-รถร่วมเทรเล่อร์ระยอง':'13 เทรเล่อร์ รย.','21-รถร่วมหกล้อชลบุรี':'21 หกล้อ ชบ.'};
 
 class Component extends DCLogic {
-  state={drivers:SEED.map(normDriver),view:'list',selectedCode:null,search:'',fleet:'all',statusFilter:'all',draft:null,isNew:false,editingCode:null,formError:'',sidebarOpen:true,historyFormOpen:false,historyDraft:null,maintFormOpen:false,maintDraft:null,section:'jobs',trucks:TRUCK_SEED.map(normTruck),truckView:'list',truckSelectedId:null,truckSearch:'',truckDeptFilter:'all',truckStatusFilter:'all',truckDraft:null,truckIsNew:false,truckFormError:'',syncStatus:'idle',jobs:[],jobView:'list',jobSearch:'',jobDateFrom:new Date().toISOString().slice(0,10),jobDateTo:new Date().toISOString().slice(0,10),jobDpFilter:'all',jobDraft:null,jobIsNew:false,jobFormError:'',jobQrVisible:false,jobQrImgUrl:'',jobQrText:'',savedJobQrVisible:false,savedJobQrImgUrl:'',savedJobQrText:'',savedJobNo:'',pinUnlocked:false,pinModalOpen:false,pinInput:'',pinError:'',qrBaseUrl:'',effView:'monthly',effMonth:new Date().toISOString().slice(0,7),effTruckFilter:'',driverSort:{col:'',dir:'asc'},truckSort:{col:'',dir:'asc'},truckSortKeys:[],orders:[],customers:[],origins:[],hiddenCustomers:[],hiddenOrigins:[],jobAddingCustomer:false,jobAddingOrigin:false,orderAddingOrigin:false,jobEditDetails:false,jobShowExpenses:false,jobShowTracking:false,orderView:'list',orderDraft:null,orderIsNew:false,orderFormError:'',orderSearch:'',orderStatusFilter:'all',orderAddingCustomer:false};
+  state={drivers:SEED.map(normDriver),view:'list',selectedCode:null,search:'',fleet:'all',statusFilter:'all',draft:null,isNew:false,editingCode:null,formError:'',sidebarOpen:true,historyFormOpen:false,historyDraft:null,maintFormOpen:false,maintDraft:null,section:'jobs',trucks:TRUCK_SEED.map(normTruck),truckView:'list',truckSelectedId:null,truckSearch:'',truckDeptFilter:'all',truckStatusFilter:'all',truckDraft:null,truckIsNew:false,truckFormError:'',syncStatus:'idle',jobs:[],jobView:'list',jobSearch:'',jobDateFrom:new Date().toISOString().slice(0,10),jobDateTo:new Date().toISOString().slice(0,10),jobDpFilter:'all',jobDraft:null,jobIsNew:false,jobFormError:'',jobQrVisible:false,jobQrImgUrl:'',jobQrText:'',savedJobQrVisible:false,savedJobQrImgUrl:'',savedJobQrText:'',savedJobNo:'',pinUnlocked:false,pinModalOpen:false,pinInput:'',pinError:'',qrBaseUrl:'',effView:'monthly',settleModalOpen:false,settleDraft:null,effSettleStatus:'all',effSettleTruck:'all',effMonth:new Date().toISOString().slice(0,7),effTruckFilter:'',driverSort:{col:'',dir:'asc'},truckSort:{col:'',dir:'asc'},truckSortKeys:[],orders:[],customers:[],origins:[],hiddenCustomers:[],hiddenOrigins:[],jobAddingCustomer:false,jobAddingOrigin:false,orderAddingOrigin:false,selectedOrderIds:[],orderDateFrom:'',orderDateTo:'',dispatchers:[],jobAddingDispatcher:false,importOpen:false,importText:'',importPreview:null,importError:'',jobEditDetails:false,jobShowExpenses:false,jobShowTracking:false,orderView:'list',orderDraft:null,orderIsNew:false,orderFormError:'',orderSearch:'',orderStatusFilter:'all',orderAddingCustomer:false};
 
   componentWillUnmount(){window.removeEventListener('beforeunload',this._beforeUnload);if(this._pollTimer)clearInterval(this._pollTimer);}
   componentDidMount(){
@@ -1755,6 +1965,7 @@ class Component extends DCLogic {
     try{const j=localStorage.getItem('jobReg_v1');if(j){const jobs=JSON.parse(j);if(Array.isArray(jobs))this.setState({jobs:jobs.map(normJob)});}}catch(e){}
     try{const c=localStorage.getItem('customerReg_v1');if(c){const d=JSON.parse(c);if(Array.isArray(d))this.setState({customers:d.map(normCustomer)});}}catch(e){}
     try{const og=localStorage.getItem('originReg_v1');if(og){const d=JSON.parse(og);if(Array.isArray(d))this.setState({origins:d.map(normOrigin)});}}catch(e){}
+    try{const dp=localStorage.getItem('dispatcherReg_v1');if(dp){const d=JSON.parse(dp);if(Array.isArray(d))this.setState({dispatchers:d.filter(x=>typeof x==='string')});}}catch(e){}
     try{const h=localStorage.getItem('customerHidden_v1');if(h){const d=JSON.parse(h);if(Array.isArray(d))this.setState({hiddenCustomers:d});}}catch(e){}
     try{const h=localStorage.getItem('originHidden_v1');if(h){const d=JSON.parse(h);if(Array.isArray(d))this.setState({hiddenOrigins:d});}}catch(e){}
     try{const o=localStorage.getItem('orderReg_v1');if(o){const d=JSON.parse(o);if(Array.isArray(d))this.setState({orders:d.map(normOrder)});}}catch(e){}
@@ -1906,6 +2117,7 @@ class Component extends DCLogic {
   persist(drivers,changedCode){try{localStorage.setItem('driverReg_v2',JSON.stringify(drivers));}catch(e){}if(changedCode){try{const p=new Set(JSON.parse(localStorage.getItem('driverPendingCodes')||'[]'));p.add(String(changedCode));localStorage.setItem('driverPendingCodes',JSON.stringify([...p]));}catch(e){}}const toSend=changedCode?drivers.filter(d=>String(d.code)===String(changedCode)):drivers;this.pushToSheets(toSend,undefined,undefined);}
   persistTrucks(trucks,changedPlate){try{localStorage.setItem('truckReg_v1',JSON.stringify(trucks));}catch(e){}if(changedPlate){try{const p=new Set(JSON.parse(localStorage.getItem('truckPendingPlates')||'[]'));p.add(changedPlate);localStorage.setItem('truckPendingPlates',JSON.stringify([...p]));}catch(e){}}const toSend=changedPlate?trucks.filter(t=>t.plate===changedPlate):trucks;this.pushToSheets(undefined,toSend,undefined);}
   persistJobs(jobs,changedId){try{localStorage.setItem('jobReg_v1',JSON.stringify(jobs));}catch(e){}if(changedId){try{const p=new Set(JSON.parse(localStorage.getItem('jobPendingIds')||'[]'));p.add(String(changedId));localStorage.setItem('jobPendingIds',JSON.stringify([...p]));}catch(e){}}const toSend=changedId?jobs.filter(j=>String(j.id)===String(changedId)):jobs;this.pushToSheets(undefined,undefined,toSend);}
+  setTrailer=(plate,trailerPlate)=>{const trucks=this.state.trucks.map(t=>t.plate===plate?{...t,trailerPlate}:t);this.persistTrucks(trucks,plate);this.setState({trucks});};
   scrollMain(){try{document.querySelector('main').scrollTo({top:0});}catch(e){}}
 
   isoToBE(iso){if(!iso)return '';const p=String(iso).slice(0,10).split('-');if(p.length!==3||p[0].length!==4)return '';if(+p[0]<=0||+p[1]<=0||+p[2]<=0)return '';return p[2]+'/'+p[1]+'/'+(+p[0]+543);}
@@ -1963,6 +2175,50 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
   openJobEdit=(id)=>{const j=this.state.jobs.find(x=>x.id===id);if(!j)return;this.editingJobId=id;this.setState({jobDraft:{...j},jobIsNew:false,jobView:'form',jobFormError:'',section:'jobs',jobEditDetails:false,jobShowExpenses:false,jobShowTracking:false});this.scrollMain();};
   cancelJobForm=()=>this.setState({jobView:'list',jobFormError:''});
   onGoOrders=()=>this.setState({section:'orders',orderView:'list'});
+  _parseDMY(s){s=String(s||'').trim();const m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(m){let y=+m[3];if(y>2400)y-=543;return y+'-'+String(+m[2]).padStart(2,'0')+'-'+String(+m[1]).padStart(2,'0');}return '';}
+  openImport=()=>this.setState({importOpen:true,importText:'',importPreview:null,importError:''});
+  closeImport=()=>this.setState({importOpen:false,importPreview:null,importError:''});
+  onImportText=(e)=>this.setState({importText:e.target.value});
+  parseImport=()=>{
+    const raw=this.state.importText||'';
+    const lines=raw.split(/\r?\n/).filter(l=>l.trim()!=='');
+    if(!lines.length){this.setState({importError:'ยังไม่มีข้อมูลที่วาง'});return;}
+    let rows=lines.map(l=>l.split('\t'));
+    const isHeader=(r)=>/RowNum|Shipment|DeliveryNo|CustomerName/i.test(r.join(' '));
+    if(rows[0]&&/^report/i.test((rows[0][0]||'').trim())&&rows[0].filter(x=>x.trim()).length<=1)rows=rows.slice(1);
+    if(rows[0]&&isHeader(rows[0]))rows=rows.slice(1);
+    const C={row:0,checkIn:1,shipEnd:2,deliveryNo:3,shipment:4,truckType:5,customer:6,destination:7,saleDistrict:8,size:9,weight:10,unit:11,contractor:12,remark:13,note1:14,note2:15,productGroup:16};
+    const g=(r,i)=>String(r[i]||'').trim();
+    const lineObjs=[];
+    for(const r of rows){
+      const bill=g(r,C.shipment),cust=g(r,C.customer),dn=g(r,C.deliveryNo);
+      if(!bill&&!cust)continue;
+      const sd=g(r,C.saleDistrict);const origin=sd.includes(' - ')?sd.split(' - ')[0].trim():sd;
+      lineObjs.push({rowNum:g(r,C.row),bill,custDeliveryNo:dn,customer:cust,destination:g(r,C.destination),saleDistrict:sd,origin,size:g(r,C.size),weight:parseFloat(g(r,C.weight))||0,truckType:g(r,C.truckType),note:g(r,C.note1),remark:g(r,C.remark),note2:g(r,C.note2),productGroup:g(r,C.productGroup),receivedDate:this._parseDMY(g(r,C.checkIn)),shipmentEnd:this._parseDMY(g(r,C.shipEnd))});
+    }
+    if(!lineObjs.length){this.setState({importError:'อ่านข้อมูลไม่ได้ — กรุณาคัดลอกทั้งแถวจาก Excel (รวมหัวตารางได้)'});return;}
+    const trips=[];const map={};
+    lineObjs.forEach(lo=>{if(lo.rowNum&&map[lo.rowNum]){map[lo.rowNum].lines.push(lo);}else{const t={rowNum:lo.rowNum,lines:[lo]};if(lo.rowNum)map[lo.rowNum]=t;trips.push(t);}});
+    const preview=trips.map(t=>{const ls=t.lines;const total=ls.reduce((a,x)=>a+x.weight,0);const f=ls[0];const db=[...new Set(ls.map(x=>x.bill).filter(Boolean))];return{rowNum:t.rowNum||'—',bills:db.join(', ')||'—',billCount:db.length||1,customer:f.customer||'—',route:(f.origin||'—')+' → '+(f.destination||'—'),size:f.size||'—',note:f.note||'',totalWeight:Math.round(total*1000)/1000,lines:ls};});
+    this.setState({importPreview:preview,importError:''});
+  };
+  confirmImport=()=>{
+    const preview=this.state.importPreview;if(!preview||!preview.length)return;
+    const S=this.state;const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    const _ymd=today.replace(/-/g,'').slice(2);const _prefix='OR-'+_ymd+'-';
+    let _seq=S.orders.filter(x=>String(x.orderNo||'').startsWith(_prefix)).reduce((mx,x)=>{const n=parseInt(String(x.orderNo).slice(_prefix.length),10);return isNaN(n)?mx:Math.max(mx,n);},0);
+    let _id=Date.now();const newOrders=preview.map((p)=>{const f=p.lines[0];_seq++;while(S.orders.some(x=>String(x.id)===String(_id)))_id++;
+      const byBill={};p.lines.forEach((l,li)=>{const k=l.bill||('_'+li);if(!byBill[k])byBill[k]={bill:l.bill,custDeliveryNo:l.custDeliveryNo,origin:l.origin,destination:l.destination,customer:l.customer,sizes:[],weight:0,note:l.note,remark:l.remark};byBill[k].weight+=l.weight;if(l.size)byBill[k].sizes.push(l.size);});
+      const ships=Object.keys(byBill).map(k=>{const s=byBill[k];return{bill:s.bill,custDeliveryNo:s.custDeliveryNo,origin:s.origin,destination:s.destination,customer:s.customer,size:s.sizes.join(' + '),weight:Math.round(s.weight*1000)/1000,note:s.note,remark:s.remark};});
+      const o=normOrder({id:_id++,orderNo:_prefix+String(_seq).padStart(3,'0'),receivedDate:f.receivedDate||today,requiredDate:f.shipmentEnd||today,shipmentEnd:f.shipmentEnd||'',customer:f.customer,billNo:ships[0].bill,custDeliveryNo:f.custDeliveryNo,origin:f.origin,destination:f.destination,saleDistrict:f.saleDistrict,size:ships[0].size,truckType:f.truckType,weight:p.totalWeight,remark:f.remark,note2:f.note2,productGroup:f.productGroup,driverNote:f.note,channel:'อีเมล',shipments:ships,status:'รอจัดรถ'});return o;});
+    const orders=[...newOrders,...S.orders];
+    try{localStorage.setItem('orderReg_v1',JSON.stringify(orders));}catch(e){}
+    this._lastPushAt=Date.now();this.setState({orders,importOpen:false,importPreview:null,importText:'',syncStatus:'saving'});
+    sbUpsertOrders(newOrders).then(()=>this.setState({syncStatus:'ok'})).catch(()=>this.setState({syncStatus:'error'}));
+  };
+  toggleOrderSel=(id)=>this.setState(s=>{const set=new Set((s.selectedOrderIds||[]).map(String));const k=String(id);if(set.has(k))set.delete(k);else set.add(k);return{selectedOrderIds:[...set]};});
+  linkTrip=()=>{const ids=(this.state.selectedOrderIds||[]).map(String);if(ids.length<2)return;const tripId='T'+Date.now().toString().slice(-7);const orders=this.state.orders.map(o=>ids.includes(String(o.id))?normOrder({...o,tripId}):o);try{localStorage.setItem('orderReg_v1',JSON.stringify(orders));}catch(e){}this._lastPushAt=Date.now();const changed=orders.filter(o=>ids.includes(String(o.id)));this.setState({orders,selectedOrderIds:[]});sbUpsertOrders(changed).catch(()=>{});};
+  unlinkOrder=(id)=>{const o=this.state.orders.find(x=>String(x.id)===String(id));if(!o||!o.tripId)return;const tid=o.tripId;const clearAll=this.state.orders.filter(x=>x.tripId===tid).length<=2;const orders=this.state.orders.map(x=>((clearAll&&x.tripId===tid)||String(x.id)===String(id))?normOrder({...x,tripId:''}):x);try{localStorage.setItem('orderReg_v1',JSON.stringify(orders));}catch(e){}this._lastPushAt=Date.now();const changed=this.state.orders.filter(x=>x.tripId===tid).map(x=>orders.find(y=>String(y.id)===String(x.id)));this.setState({orders});sbUpsertOrders(changed).catch(()=>{});};
   openOrderNew=()=>{const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const S=this.state;const _ymd=today.replace(/-/g,'').slice(2);const _prefix='OR-'+_ymd+'-';const _seq=S.orders.filter(x=>String(x.orderNo||'').startsWith(_prefix)).reduce((mx,x)=>{const n=parseInt(String(x.orderNo).slice(_prefix.length),10);return isNaN(n)?mx:Math.max(mx,n);},0)+1;this.editingOrderId=null;this.setState({orderDraft:normOrder({orderNo:_prefix+String(_seq).padStart(3,'0'),receivedDate:today,requiredDate:today}),orderIsNew:true,orderView:'form',orderFormError:'',orderAddingCustomer:false,section:'orders'});this.scrollMain();};
   openOrderEdit=(id)=>{const o=this.state.orders.find(x=>String(x.id)===String(id));if(!o)return;this.editingOrderId=id;this.setState({orderDraft:{...o},orderIsNew:false,orderView:'form',orderFormError:'',orderAddingCustomer:false,section:'orders'});this.scrollMain();};
   cancelOrderForm=()=>this.setState({orderView:'list',orderFormError:''});
@@ -1975,12 +2231,22 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
   addOrderOriginInline=()=>{const o=this.state.orderDraft||{};const name=String(o.newOrigin||'').trim();if(!name)return;const exists=this.state.origins.some(x=>x.name===name)||ORIGINS.indexOf(name)>=0;if(exists){this.setState(s=>({orderDraft:{...s.orderDraft,origin:name,_originPreset:name,newOrigin:''},orderAddingOrigin:false}));return;}let _id=Date.now();while(this.state.origins.some(x=>String(x.id)===String(_id)))_id++;const no=normOrigin({id:_id,name});const origins=[...this.state.origins,no];try{localStorage.setItem('originReg_v1',JSON.stringify(origins));}catch(e){}this._lastPushAt=Date.now();const _uh=(this.state.hiddenOrigins||[]).filter(n=>n!==name);try{localStorage.setItem('originHidden_v1',JSON.stringify(_uh));}catch(e){}this.setState(s=>({origins,hiddenOrigins:_uh,orderDraft:{...s.orderDraft,origin:name,_originPreset:name,newOrigin:''},orderAddingOrigin:false}));sbUpsertOrigins([no]).catch(()=>{});};
   deleteCustomerName=(name)=>{name=String(name||'').trim();if(!name)return;if(!window.confirm('ลบ "'+name+'" ออกจากรายการลูกค้า?'))return;const target=this.state.customers.find(c=>c.name===name);const customers=this.state.customers.filter(c=>c.name!==name);const hidden=[...new Set([...(this.state.hiddenCustomers||[]),name])];try{localStorage.setItem('customerReg_v1',JSON.stringify(customers));localStorage.setItem('customerHidden_v1',JSON.stringify(hidden));}catch(e){}this._lastPushAt=Date.now();this.setState(s=>{const jd=s.jobDraft,od=s.orderDraft;return{customers,hiddenCustomers:hidden,jobDraft:jd&&jd.customer===name?{...jd,customer:''}:jd,orderDraft:od&&od.customer===name?{...od,customer:''}:od};});if(target)sbDeleteRows('customers','id',[String(target.id)]).catch(()=>{});};
   deleteOriginName=(name)=>{name=String(name||'').trim();if(!name)return;if(!window.confirm('ลบ "'+name+'" ออกจากรายการต้นทาง?'))return;const target=this.state.origins.find(o=>o.name===name);const origins=this.state.origins.filter(o=>o.name!==name);const hidden=[...new Set([...(this.state.hiddenOrigins||[]),name])];try{localStorage.setItem('originReg_v1',JSON.stringify(origins));localStorage.setItem('originHidden_v1',JSON.stringify(hidden));}catch(e){}this._lastPushAt=Date.now();this.setState(s=>{const jd=s.jobDraft,od=s.orderDraft;const cj=jd&&jd.origin===name;const co=od&&od.origin===name;return{origins,hiddenOrigins:hidden,jobDraft:cj?{...jd,origin:'',_originPreset:''}:jd,orderDraft:co?{...od,origin:'',_originPreset:''}:od};});if(target)sbDeleteRows('origins','id',[String(target.id)]).catch(()=>{});};
-  dispatchOrder=(id)=>{const o=this.state.orders.find(x=>String(x.id)===String(id));if(!o)return;this.dispatchingOrderId=id;this.editingJobId=null;const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const S=this.state;const _ymd=today.replace(/-/g,'').slice(2);const _prefix='JB-'+_ymd+'-';const _seq=S.jobs.filter(x=>String(x.jobNo||'').startsWith(_prefix)).reduce((mx,x)=>{const n=parseInt(String(x.jobNo).slice(_prefix.length),10);return isNaN(n)?mx:Math.max(mx,n);},0)+1;this.setState({jobDraft:{id:null,jobNo:_prefix+String(_seq).padStart(3,'0'),date:today,time:new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date()),driverCode:'',truckPlate:'',origin:o.origin||'',destination:o.destination||'',customer:o.customer||'',weight:o.weight||'',revenue:'',deliveryNo:o.billNo||'',dispatchPoint:'ระยอง',status:'รับงาน',fuelLiters:'',fuelBaht:'',toll:'',allowance:'',tire:'',repair:'',police:'',misc:'',remark:o.remark||'',driverFleet:'',truckDept:'',dispatcher:'',dispatcherOther:''},jobIsNew:true,jobView:'form',jobFormError:'',section:'jobs',jobEditDetails:false,jobShowExpenses:false,jobShowTracking:false});this.scrollMain();};
+  dispatchOrder=(id)=>{const o=this.state.orders.find(x=>String(x.id)===String(id));if(!o)return;const S=this.state;let members=o.tripId?S.orders.filter(x=>x.tripId===o.tripId):[o];members=members.slice().sort((a,b)=>(parseFloat(b.weight)||0)-(parseFloat(a.weight)||0));const pr=members[0];const totW=Math.round(members.reduce((s,m)=>s+(parseFloat(m.weight)||0),0)*1000)/1000;const ships=members.map(m=>({bill:m.billNo||'',custDeliveryNo:m.custDeliveryNo||'',origin:m.origin||'',destination:m.destination||'',customer:m.customer||'',weight:m.weight||'',size:m.size||'',note:m.driverNote||''}));const _notes=[...new Set(members.map(m=>m.driverNote).filter(Boolean))].join(' · ');this.dispatchingOrderId=pr.id;this.dispatchingTripIds=members.map(m=>m.id);this.editingJobId=null;const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const _ymd=today.replace(/-/g,'').slice(2);const _prefix='JB-'+_ymd+'-';const _seq=S.jobs.filter(x=>String(x.jobNo||'').startsWith(_prefix)).reduce((mx,x)=>{const n=parseInt(String(x.jobNo).slice(_prefix.length),10);return isNaN(n)?mx:Math.max(mx,n);},0)+1;this.setState({jobDraft:{id:null,jobNo:_prefix+String(_seq).padStart(3,'0'),date:today,time:new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date()),driverCode:'',truckPlate:'',origin:pr.origin||'',destination:pr.destination||'',customer:pr.customer||'',weight:String(totW||pr.weight||''),revenue:'',deliveryNo:pr.billNo||'',dispatchPoint:'สระบุรี',status:'รับงาน',fuelLiters:'',fuelBaht:'',toll:'',allowance:'',tire:'',repair:'',police:'',misc:'',remark:pr.remark||'',driverNote:_notes||pr.driverNote||'',shipments:ships,driverFleet:'',truckDept:'',dispatcher:'',dispatcherOther:''},jobIsNew:true,jobView:'form',jobFormError:'',section:'jobs',jobEditDetails:false,jobShowExpenses:false,jobShowTracking:false});this.scrollMain();};
   viewOrderJob=(jobId)=>{const j=this.state.jobs.find(x=>String(x.id)===String(jobId));if(!j){window.alert('ไม่พบใบงานที่เชื่อมไว้ (อาจถูกลบ)');return;}this.editingJobId=j.id;this.setState({jobDraft:{...j},jobIsNew:false,jobView:'form',jobFormError:'',section:'jobs',jobEditDetails:false,jobShowExpenses:false,jobShowTracking:false});this.scrollMain();};
   setJ(field,val){this.setState(s=>({jobDraft:{...s.jobDraft,[field]:val}}));}
-  saveJob=()=>{const j=this.state.jobDraft;if(!j||!j.date){this.setState({jobFormError:'กรุณาเลือกวันที่'});return;}let _newId=this.editingJobId;if(!_newId){_newId=Date.now();while(this.state.jobs.some(x=>String(x.id)===String(_newId)))_newId++;}const nj=normJob({...j,id:_newId});let jobs;if(this.state.jobIsNew){jobs=[nj,...this.state.jobs];}else{jobs=this.state.jobs.map(x=>x.id===this.editingJobId?nj:x);}this.persistJobs(jobs,nj.id);if(this.dispatchingOrderId){const _oid=this.dispatchingOrderId;this.dispatchingOrderId=null;const _orders=this.state.orders.map(x=>String(x.id)===String(_oid)?normOrder({...x,status:'จ่ายงานแล้ว',jobId:nj.id}):x);try{localStorage.setItem('orderReg_v1',JSON.stringify(_orders));}catch(e){}const _uo=_orders.find(x=>String(x.id)===String(_oid));this.setState({orders:_orders});if(_uo)sbUpsertOrders([_uo]).catch(()=>{});}const drv=this.state.drivers.find(x=>String(x.code)===String(nj.driverCode));const data={id:nj.id,jobNo:nj.jobNo,date:nj.date,time:nj.time,driverCode:nj.driverCode,driverName:drv?drv.name:'',truckPlate:nj.truckPlate,origin:nj.origin,destination:nj.destination,customer:nj.customer,deliveryNo:nj.deliveryNo,dispatchPoint:nj.dispatchPoint,dispatchTime:nj.dispatchTime,driverNote:nj.driverNote};const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data))));const base=(this.state.qrBaseUrl&&this.state.qrBaseUrl.trim())?this.state.qrBaseUrl.trim().replace(/\/+$/,'')+'/':'https://niimph-max.github.io/singthongtruck/';const url=base+'driver.html?d='+encodeURIComponent(b64);const img='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(url);this.setState({jobs,jobView:'list',jobFormError:'',savedJobQrVisible:true,savedJobQrImgUrl:img,savedJobQrText:url,savedJobNo:nj.jobNo||'ใบงาน',savedJobDriver:(drv?drv.name:''),savedLinkCopied:false});};
+  readJobAttachment=(e)=>{const file=e.target.files&&e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=(ev)=>{const img=new Image();img.onload=()=>{const max=1400;let w=img.width,h=img.height;if(w>max||h>max){if(w>=h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);let data;try{data=c.toDataURL('image/jpeg',0.72);}catch(err){data=ev.target.result;}this.setJ('attachment',data);};img.src=ev.target.result;};reader.readAsDataURL(file);};
+  removeJobAttachment=()=>this.setJ('attachment','');
+  addJobDispatcherInline=()=>{const j=this.state.jobDraft||{};const name=String(j.newDispatcher||'').trim();if(!name)return;let list=this.state.dispatchers||[];if(!list.includes(name)){list=[...list,name].sort((a,b)=>String(a).localeCompare(String(b),'th'));try{localStorage.setItem('dispatcherReg_v1',JSON.stringify(list));}catch(e){}}this.setState(s=>({dispatchers:list,jobDraft:{...s.jobDraft,dispatcher:name,newDispatcher:''},jobAddingDispatcher:false}));};
+  deleteDispatcherName=(name)=>{name=String(name||'').trim();if(!name)return;if(!window.confirm('ลบ "'+name+'" ออกจากรายชื่อผู้จ่ายงาน?'))return;const list=(this.state.dispatchers||[]).filter(n=>n!==name);try{localStorage.setItem('dispatcherReg_v1',JSON.stringify(list));}catch(e){}this.setState(s=>({dispatchers:list,jobDraft:(s.jobDraft&&s.jobDraft.dispatcher===name)?{...s.jobDraft,dispatcher:''}:s.jobDraft}));};
+  saveJob=()=>{const j=this.state.jobDraft;if(!j||!j.date){this.setState({jobFormError:'กรุณาเลือกวันที่'});return;}let _newId=this.editingJobId;if(!_newId){_newId=Date.now();while(this.state.jobs.some(x=>String(x.id)===String(_newId)))_newId++;}const nj=normJob({...j,id:_newId});let jobs;if(this.state.jobIsNew){jobs=[nj,...this.state.jobs];}else{jobs=this.state.jobs.map(x=>x.id===this.editingJobId?nj:x);}this.persistJobs(jobs,nj.id);if(this.dispatchingOrderId){const _ids=(this.dispatchingTripIds&&this.dispatchingTripIds.length?this.dispatchingTripIds:[this.dispatchingOrderId]).map(String);this.dispatchingOrderId=null;this.dispatchingTripIds=null;const _orders=this.state.orders.map(x=>_ids.includes(String(x.id))?normOrder({...x,status:'จ่ายงานแล้ว',jobId:nj.id}):x);try{localStorage.setItem('orderReg_v1',JSON.stringify(_orders));}catch(e){}const _uo=_orders.filter(x=>_ids.includes(String(x.id)));this.setState({orders:_orders});if(_uo.length)sbUpsertOrders(_uo).catch(()=>{});}const drv=this.state.drivers.find(x=>String(x.code)===String(nj.driverCode));const data={id:nj.id,jobNo:nj.jobNo,date:nj.date,time:nj.time,driverCode:nj.driverCode,driverName:drv?drv.name:'',truckPlate:nj.truckPlate,origin:nj.origin,destination:nj.destination,customer:nj.customer,deliveryNo:nj.deliveryNo,dispatchPoint:nj.dispatchPoint,dispatchTime:nj.dispatchTime,driverNote:nj.driverNote,fuelAdvance:nj.fuelAdvance,fuelAdvanceNote:nj.fuelAdvanceNote};const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data))));const base=(this.state.qrBaseUrl&&this.state.qrBaseUrl.trim())?this.state.qrBaseUrl.trim().replace(/\/+$/,'')+'/':'https://niimph-max.github.io/singthongtruck/';const url=base+'driver.html?d='+encodeURIComponent(b64);const img='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(url);this.setState({jobs,jobView:'list',jobFormError:'',savedJobQrVisible:true,savedJobQrImgUrl:img,savedJobQrText:url,savedJobNo:(nj.jobNo||'ใบงาน')+(nj.deliveryNo?(' · บิล '+nj.deliveryNo):''),savedJobDriver:(drv?drv.name:''),savedLinkCopied:false});};
   deleteJob=(id)=>{if(!window.confirm('ยืนยันการลบใบงานนี้?'))return;const jobs=this.state.jobs.filter(x=>x.id!==id);try{localStorage.setItem('jobReg_v1',JSON.stringify(jobs));}catch(e){}this.pushDelete('jobs',[String(id)]);this.setState({jobs});};
 
+  openSettle=(jobId)=>{const j=this.state.jobs.find(x=>String(x.id)===String(jobId));if(!j)return;this.setState({settleModalOpen:true,settleDraft:{...j}});};
+  closeSettle=()=>this.setState({settleModalOpen:false,settleDraft:null});
+  setSettle=(field,val)=>this.setState(s=>({settleDraft:{...s.settleDraft,[field]:val}}));
+  markDocsClosed=(target)=>{const now=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date()).replace(' ','T');this.setState(s=>({settleDraft:{...s.settleDraft,docsClosed:true,docsClosedTime:now,docsTarget:target}}));};
+  undoDocsClosed=()=>this.setState(s=>({settleDraft:{...s.settleDraft,docsClosed:false,docsClosedTime:'',docsTarget:''}}));
+  saveSettle=()=>{const d=this.state.settleDraft;if(!d)return;const nj=normJob(d);const jobs=this.state.jobs.map(x=>String(x.id)===String(nj.id)?nj:x);this.persistJobs(jobs,nj.id);this.setState({jobs,settleModalOpen:false,settleDraft:null});};
   copyText=(t)=>{try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).catch(()=>this._copyFallback(t));}else{this._copyFallback(t);}}catch(e){this._copyFallback(t);}};
   _copyFallback=(t)=>{try{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');document.body.removeChild(ta);}catch(e){}};
 
@@ -2312,14 +2578,22 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
     const isEffSection=S.section==='efficiency';
     out.isEffMonthly=isEffSection&&S.effView==='monthly';
     out.isEffTruck=isEffSection&&S.effView==='truck';
+    out.isEffSettle=isEffSection&&S.effView==='settle';
     out.effMonth=S.effMonth;
     out.onEffMonth=(e)=>this.setState({effMonth:e.target.value});
     out.onEffViewMonthly=()=>this.setState({effView:'monthly'});
     out.onEffViewTruck=()=>this.setState({effView:'truck'});
+    out.onEffViewSettle=()=>this.setState({effView:'settle'});
+    out.effSettleBtnStyle='padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;'+(S.effView==='settle'?'background:#2f6fb0;color:#fff;':'background:#f4f6f8;color:#475467;');
     out.effMonthlyBtnStyle='padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;'+(S.effView==='monthly'?'background:#2f6fb0;color:#fff;':'background:#f4f6f8;color:#475467;');
     out.effTruckBtnStyle='padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;'+(S.effView==='truck'?'background:#2f6fb0;color:#fff;':'background:#f4f6f8;color:#475467;');
     if(isEffSection){
-      const companyTrucks=S.trucks.filter(t=>t.dept==='รถบริษัท');
+      const _isTrailer=(t)=>/หางพ่วง/.test(t.truckType||'')||String(t.truckType||'').startsWith('21');
+      const _isTractor=(t)=>/หัวลาก/.test(t.truckType||'')||String(t.truckType||'').startsWith('18');
+      const companyTrailers=S.trucks.filter(t=>t.dept==='รถบริษัท'&&_isTrailer(t));
+      const companyTrucks=S.trucks.filter(t=>t.dept==='รถบริษัท'&&!_isTrailer(t));
+      out.effTrailerOptions=[{value:'',label:'— ไม่ใส่หาง —'}].concat(companyTrailers.map(t=>({value:t.plate,label:t.plate+(t.model?(' · '+t.model):'')})));
+      out.effStopRowClick=(e)=>e.stopPropagation();
       const sm=S.effMonth;
       const sumF=(jobs,f)=>jobs.reduce((s,j)=>s+(parseFloat(j[f])||0),0);
       const fmt=n=>'฿'+Math.round(n).toLocaleString();
@@ -2333,7 +2607,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
         const net=rev-totalExp;
         const drCode=jobs.find(j=>j.driverCode)?.driverCode||'';
         const drv=S.drivers.find(d=>String(d.code)===String(drCode));
-        return{plate:t.plate,driver:drv?drv.name:(drCode||'—'),trips:jobs.length,revenue:fmt(rev),fuel:fmt(fuel),pctFuel:pct(fuel,rev),allowance:fmt(allow),pctAllow:pct(allow,rev),tire:fmt(tire),repair:fmt(repair),toll:fmt(toll),misc:fmt(misc),salary:fmt(sal),installment:inst>0?fmt(inst):'—',totalExp:fmt(totalExp),net:fmt(net),netStyle:'font-weight:700;color:'+(net>=0?'#067647':'#b42318')+';',onClickRow:()=>this.setState({effView:'truck',effTruckFilter:t.plate})};
+        return{plate:t.plate,isTractor:_isTractor(t),trailer:t.trailerPlate||'',onTrailerChange:(e)=>this.setTrailer(t.plate,e.target.value),driver:drv?drv.name:(drCode||'—'),trips:jobs.length,revenue:fmt(rev),fuel:fmt(fuel),pctFuel:pct(fuel,rev),allowance:fmt(allow),pctAllow:pct(allow,rev),tire:fmt(tire),repair:fmt(repair),toll:fmt(toll),misc:fmt(misc),salary:fmt(sal),installment:inst>0?fmt(inst):'—',totalExp:fmt(totalExp),net:fmt(net),netStyle:'font-weight:700;color:'+(net>=0?'#067647':'#b42318')+';',onClickRow:()=>this.setState({effView:'truck',effTruckFilter:t.plate})};
       });
       out.effTruckRows=truckRows;out.effRowCount=truckRows.length;
       const tRev=companyTrucks.reduce((s,t)=>{const jobs=S.jobs.filter(j=>j.truckPlate===t.plate&&j.date&&j.date.startsWith(sm));return s+sumF(jobs,'revenue');},0);
@@ -2356,6 +2630,46 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
         return{month:thM[parseInt(mo)]+' '+(parseInt(yr)+543),trips:jobs.length,revenue:fmt(rev),fuel:fmt(fuel),pctFuel:pct(fuel,rev),totalExp:fmt(totalExp),net:fmt(net),netStyle:'font-weight:700;color:'+(net>=0?'#067647':'#b42318')+';'};
       });
       out.effTruckTitle=selPlate||'—';
+      // ---- SETTLE (ปิดงาน & ค่าใช้จ่าย) ----
+      const cPlates=new Set(companyTrucks.map(t=>t.plate));
+      const settleSrc=S.jobs.filter(j=>cPlates.has(j.truckPlate)&&j.date&&j.date.startsWith(sm)&&j.documentTime);
+      const expSum=(j)=>[j.fuelBaht,j.allowance,j.toll,j.tire,j.repair,j.police,j.misc].reduce((a,v)=>a+(parseFloat(v)||0),0);
+      const settleStat=(j)=>!j.docsClosed?'awaitDocs':(!j.expenseDone?'awaitExp':'done');
+      out.settleTotalTrips=settleSrc.length;
+      out.settleAwaitDocs=settleSrc.filter(j=>settleStat(j)==='awaitDocs').length;
+      out.settleAwaitExp=settleSrc.filter(j=>settleStat(j)==='awaitExp').length;
+      out.settleDone=settleSrc.filter(j=>settleStat(j)==='done').length;
+      out.settleTotalExp=fmt(settleSrc.reduce((a,j)=>a+expSum(j),0));
+      out.effSettleStatus=S.effSettleStatus;out.effSettleTruck=S.effSettleTruck;
+      out.onEffSettleStatus=(e)=>this.setState({effSettleStatus:e.target.value});
+      out.onEffSettleTruck=(e)=>this.setState({effSettleTruck:e.target.value});
+      out.settleTruckOptions=[{value:'all',label:'ทุกคัน'}].concat(companyTrucks.map(t=>({value:t.plate,label:t.plate})));
+      const _sMeta={awaitDocs:{label:'🔴 รอปิดเอกสาร',style:this.chip('#b54708','#fffaeb')},awaitExp:{label:'🟠 รอลงค่าใช้จ่าย',style:this.chip('#175cd3','#eff4ff')},done:{label:'🟢 เสร็จสมบูรณ์',style:this.chip('#067647','#ecfdf3')}};
+      let settleList=settleSrc.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))||(b.id-a.id));
+      if(S.effSettleTruck!=='all')settleList=settleList.filter(j=>j.truckPlate===S.effSettleTruck);
+      if(S.effSettleStatus!=='all')settleList=settleList.filter(j=>settleStat(j)===S.effSettleStatus);
+      const _drvNm=(code)=>{const d=S.drivers.find(x=>String(x.code)===String(code));return d?d.name:(code||'—');};
+      const _fmtThD=(iso)=>{if(!iso)return '—';const p=String(iso).slice(0,10).split('-');return (+p[2])+' '+THM[parseInt(p[1])-1]+' '+((+p[0])+543);};
+      out.settleRows=settleList.map(j=>{const st=settleStat(j);return{id:j.id,date:_fmtThD(j.date),jobNo:j.jobNo||'—',bill:j.deliveryNo||'—',plate:j.truckPlate||'—',driver:_drvNm(j.driverCode),customer:j.customer||'—',route:(j.origin||'—')+' → '+(j.destination||'—'),revenue:j.revenue?fmt(parseFloat(j.revenue)||0):'—',expense:expSum(j)>0?fmt(expSum(j)):'—',statusLabel:_sMeta[st].label,statusStyle:_sMeta[st].style,onOpen:()=>this.openSettle(j.id)};});
+      out.settleEmpty=settleList.length===0;out.settleRowCount=settleList.length;
+      const sd=S.settleDraft;out.settleModalOpen=!!S.settleModalOpen;
+      if(sd){
+        out.sd=sd;out.sdTitle=(sd.jobNo||'ใบงาน')+' · '+(sd.truckPlate||'');
+        out.sdDriver=_drvNm(sd.driverCode);out.sdRoute=(sd.origin||'—')+' → '+(sd.destination||'—');out.sdCustomer=sd.customer||'—';
+        out.sdDocsClosed=!!sd.docsClosed;out.sdDocsOpen=!sd.docsClosed;out.sdDocsTarget=sd.docsTarget||'';
+        out.sdExpenseDone=!!sd.expenseDone;
+        out.sdFuelAdvanceText=(sd.fuelAdvance||sd.fuelAdvanceNote)?([sd.fuelAdvance||'',sd.fuelAdvanceNote||''].filter(Boolean).join(' · ')):'— ไม่มี —';
+        out.onSettleDocsAcct=()=>this.markDocsClosed('ส่งบัญชี');
+        out.onSettleDocsCust=()=>this.markDocsClosed('ส่งลูกค้า');
+        out.onSettleDocsBoth=()=>this.markDocsClosed('ส่งบัญชี + ส่งลูกค้า');
+        out.onSettleUndoDocs=this.undoDocsClosed;
+        out.onSettleFuelL=(e)=>this.setSettle('fuelLiters',e.target.value);out.onSettleFuelB=(e)=>this.setSettle('fuelBaht',e.target.value);
+        out.onSettleAllowance=(e)=>this.setSettle('allowance',e.target.value);out.onSettleToll=(e)=>this.setSettle('toll',e.target.value);
+        out.onSettleTire=(e)=>this.setSettle('tire',e.target.value);out.onSettleRepair=(e)=>this.setSettle('repair',e.target.value);
+        out.onSettlePolice=(e)=>this.setSettle('police',e.target.value);out.onSettleMisc=(e)=>this.setSettle('misc',e.target.value);
+        out.onSettleExpenseDone=(e)=>this.setSettle('expenseDone',e.target.checked);
+        out.onSettleSave=this.saveSettle;out.onSettleClose=this.closeSettle;
+      }
     }
     // ---- JOBS renderVals ----
     out.jobSearch=S.jobSearch;out.onJobSearch=(e)=>this.setState({jobSearch:e.target.value});
@@ -2423,7 +2737,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
       const _thmArr=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
       const _fmtThaiDT=(v)=>{const dtl=_toDTL(v);if(!dtl)return '';const[dp,tp]=dtl.split('T');const[y,mo,da]=dp.split('-');return (+da)+' '+_thmArr[(+mo)-1]+' '+(+y+543)+' · '+tp+' น.';};
       const jdN={...jd,dispatchTime:_toDTL(jd.dispatchTime),pickupTime:_toDTL(jd.pickupTime),arrivalTime:_toDTL(jd.arrivalTime),completionTime:_toDTL(jd.completionTime),documentTime:_toDTL(jd.documentTime)};
-      out.jd={driverFleet:'',truckDept:'',driverNote:'',...jdN};
+      out.jd={driverFleet:'',truckDept:'',driverNote:'',attachment:'',newDispatcher:'',...jdN};
       out.jdDispatchTimeText=_fmtThaiDT(jd.dispatchTime);
       out.jdPickupTimeText=_fmtThaiDT(jd.pickupTime);
       out.jdArrivalTimeText=_fmtThaiDT(jd.arrivalTime);
@@ -2443,6 +2757,8 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
       out.jdSumRoute=(jd.origin||'—')+'  →  '+(jd.destination||'—');
       out.jdSumWeight=jd.weight?(jd.weight+' ตัน'):'—';
       out.jdSumBill=jd.deliveryNo||'—';
+      out.jdHasMultiShip=!!(jd.shipments&&jd.shipments.length>1);
+      out.jdShipments=(jd.shipments||[]).map((s,i)=>({idx:String(i+1),bill:s.bill||'—',route:(s.origin||'—')+' → '+(s.destination||'—'),weightText:s.weight?(s.weight+' ตัน'):'—'}));
       const _expFields=[jd.fuelBaht,jd.allowance,jd.toll,jd.tire,jd.repair,jd.police,jd.misc].map(v=>parseFloat(v)||0);
       const _expSum=_expFields.reduce((a,b)=>a+b,0);
       out.jobExpenseSummary=_expSum>0?('รวม '+_expSum.toLocaleString('th-TH')+' บาท'):'ยังไม่บันทึก';
@@ -2461,10 +2777,11 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
       const isCompanyTruck=!!(selTruck&&selTruck.dept==='รถบริษัท');
       out.isCompanyTruck=isCompanyTruck;out.isNotCompanyTruck=!isCompanyTruck;
       out.truckTypeLabel=isCompanyTruck?'🏢 รถบริษัท':'🤝 รถร่วม';
-      out.dispatcherNames=DISPATCHERS;
-      out.isDispatcherOther=jd.dispatcher==='อื่นๆ';
-      out.onJobDispatcher=(e)=>this.setJ('dispatcher',e.target.value);
-      out.onJobDispatcherOther=(e)=>this.setJ('dispatcherOther',e.target.value);
+      out.dispatcherNames=S.dispatchers||[];
+      out.jobAddingDispatcher=!!S.jobAddingDispatcher;
+      out.onJobDispatcher=(e)=>{const v=e.target.value;if(v==='__add__'){this.setState({jobAddingDispatcher:true});this.setJ('dispatcher','');}else{this.setState({jobAddingDispatcher:false});this.setJ('dispatcher',v);}};
+      out.onJobNewDispatcher=(e)=>this.setJ('newDispatcher',e.target.value);out.onSaveJobDispatcher=this.addJobDispatcherInline;
+      out.jobCanDelDispatcher=!!jd.dispatcher;out.onDelJobDispatcher=()=>this.deleteDispatcherName(jd.dispatcher);
       out.onJobDriverFleet=(e)=>{this.setState(s=>({jobDraft:{...s.jobDraft,driverFleet:e.target.value,driverCode:''}}));};
       out.onJobTruckDept=(e)=>{this.setState(s=>({jobDraft:{...s.jobDraft,truckDept:e.target.value,truckPlate:''}}));};
       out.onJobOriginPreset=(e)=>{const v=e.target.value;if(v==='__add__'){this.setState(s=>({jobAddingOrigin:true,jobDraft:{...s.jobDraft,_originPreset:''}}));return;}this.setState(s=>({jobAddingOrigin:false,jobDraft:{...s.jobDraft,_originPreset:v,origin:v&&v!=='อื่น...'?v:''}}));};
@@ -2472,7 +2789,9 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
       out.onJobFuelB=(e)=>this.setJ('fuelBaht',e.target.value);out.onJobToll=(e)=>this.setJ('toll',e.target.value);
       out.onJobAllowance=(e)=>this.setJ('allowance',e.target.value);out.onJobTire=(e)=>this.setJ('tire',e.target.value);
       out.onJobRepair=(e)=>this.setJ('repair',e.target.value);out.onJobPolice=(e)=>this.setJ('police',e.target.value);
-      out.onJobMisc=(e)=>this.setJ('misc',e.target.value);out.onJobRemark=(e)=>this.setJ('remark',e.target.value);out.onJobDriverNote=(e)=>this.setJ('driverNote',e.target.value);
+      out.onJobMisc=(e)=>this.setJ('misc',e.target.value);out.onJobRemark=(e)=>this.setJ('remark',e.target.value);out.onJobDriverNote=(e)=>this.setJ('driverNote',e.target.value);out.onJobFuelAdvance=(e)=>this.setJ('fuelAdvance',e.target.value);out.onJobFuelAdvanceNote=(e)=>this.setJ('fuelAdvanceNote',e.target.value);
+      out.onJobAttachment=(e)=>this.readJobAttachment(e);out.onRemoveJobAttachment=this.removeJobAttachment;out.jdHasAttachment=!!jd.attachment;out.jdNoAttachment=!jd.attachment;
+      out.jdAttachmentNode=jd.attachment?React.createElement('img',{src:jd.attachment,style:{maxWidth:'240px',maxHeight:'180px',borderRadius:'8px',border:'1px solid #e4e7ec',objectFit:'cover'}}):null;
       out.onJobDispatchTime=(e)=>this.setJ('dispatchTime',e.target.value);
       out.onJobPickupTime=(e)=>this.setJ('pickupTime',e.target.value);
       out.onJobArrivalTime=(e)=>this.setJ('arrivalTime',e.target.value);
@@ -2494,7 +2813,7 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
       out.jobLinkCopied=S.jobLinkCopied||false;
       out.jobCopyLabel=S.jobLinkCopied?'✓ คัดลอกลิงก์แล้ว':'ก๊อปลิงก์';
       out.onCopyJobLink=()=>{this.copyText(S.jobQrText||'');this.setState({jobLinkCopied:true});clearTimeout(this._jcT);this._jcT=setTimeout(()=>this.setState({jobLinkCopied:false}),2200);};
-      out.onShareJobLine=()=>{const j=S.jobDraft||{};const drv=S.drivers.find(x=>String(x.code)===String(j.driverCode));const dn=drv?('พขร. '+drv.name+'\n'):'';const msg='🚚 ใบงาน '+(j.jobNo||'ใบงาน')+'\n'+dn+'กดลิงก์เพื่อบันทึกสถานะงาน:\n'+(S.jobQrText||'');window.open('https://line.me/R/msg/text/?'+encodeURIComponent(msg),'_blank');};
+      out.onShareJobLine=()=>{const j=S.jobDraft||{};const drv=S.drivers.find(x=>String(x.code)===String(j.driverCode));const dn=drv?('พขร. '+drv.name+'\n'):'';const msg='🚚 ใบงาน '+(j.jobNo||'ใบงาน')+(j.deliveryNo?(' · บิล '+j.deliveryNo):'')+'\n'+dn+'กดลิงก์เพื่อบันทึกสถานะงาน:\n'+(S.jobQrText||'');window.open('https://line.me/R/msg/text/?'+encodeURIComponent(msg),'_blank');};
       out.onSaveJob=this.saveJob;out.onCancelJob=this.cancelJobForm;
       out.savedJobQrVisible=S.savedJobQrVisible;out.savedJobQrImgUrl=S.savedJobQrImgUrl;out.savedJobQrText=S.savedJobQrText;out.savedJobNo=S.savedJobNo;out.onCloseSavedQr=()=>this.setState({savedJobQrVisible:false,savedJobQrImgUrl:'',savedJobQrText:'',savedJobNo:''});
       out.jobFormError=!!S.jobFormError;out.jobFormErrorText=S.jobFormError;
@@ -2505,17 +2824,35 @@ const p=s.slice(0,10).split('-');if(p.length!==3)return null;if(+p[0]<=0||+p[1]<
       const oList=S.orders.filter(o=>{
         if(S.orderStatusFilter==='pending'&&(o.status==='จ่ายงานแล้ว'||o.status==='ยกเลิก'))return false;
         if(S.orderStatusFilter==='dispatched'&&o.status!=='จ่ายงานแล้ว')return false;
+        if(S.orderDateFrom&&(o.receivedDate||'')<S.orderDateFrom)return false;
+        if(S.orderDateTo&&(o.receivedDate||'')>S.orderDateTo)return false;
         if(oq){const blob=[o.billNo,o.customer,o.origin,o.destination,o.product].join(' ').toLowerCase();if(blob.indexOf(oq)<0)return false;}
         return true;
       }).sort((a,b)=>(Number(b.id)||0)-(Number(a.id)||0));
       const oStatusChip=(s)=>{if(s==='จ่ายงานแล้ว')return this.chip('#067647','#ecfdf3');if(s==='ยกเลิก')return this.chip('#b42318','#fef3f2');return this.chip('#b54708','#fffaeb');};
-      out.orderRows=oList.map(o=>({id:o.id,billNo:o.billNo||'—',customer:o.customer||'—',route:(o.origin||'—')+' → '+(o.destination||'—'),weight:o.weight?(o.weight+' ตัน'):'—',truckType:o.truckType||'—',requiredDate:o.requiredDate?this.thaiDate(o.requiredDate):'—',statusLabel:o.status||'รอจัดรถ',statusStyle:oStatusChip(o.status),canDispatch:o.status!=='จ่ายงานแล้ว'&&o.status!=='ยกเลิก',dispatched:o.status==='จ่ายงานแล้ว',onEdit:()=>this.openOrderEdit(o.id),onDispatch:()=>this.dispatchOrder(o.id),onViewJob:()=>this.viewOrderJob(o.jobId)}));
-      out.orderRowCount=oList.length;out.orderTotalCount=S.orders.length;out.orderEmptyVisible=oList.length===0;
+      const _osel=new Set((S.selectedOrderIds||[]).map(String));const _otc={};S.orders.forEach(o=>{if(o.tripId)_otc[o.tripId]=(_otc[o.tripId]||0)+1;});
+      out.orderSelectedCount=_osel.size;out.orderCanLink=_osel.size>=2;out.orderLinkBar=_osel.size>0;out.onLinkTrip=this.linkTrip;out.onClearSel=()=>this.setState({selectedOrderIds:[]});
+      const _mkRow=(o,fl)=>({id:o.id,selected:_osel.has(String(o.id)),onToggleSel:()=>this.toggleOrderSel(o.id),hasTrip:!!o.tripId,showCheckbox:!o.tripId,onUnlink:()=>this.unlinkOrder(o.id),billNo:o.billNo||'—',billPrefix:fl.isSub?'↳ ':'',billCount:(o.shipments&&o.shipments.length)||1,multiBill:!!(o.shipments&&o.shipments.length>1),multiBillText:(o.shipments&&o.shipments.length>1)?('+'+(o.shipments.length-1)+' บิล'):'',customer:o.customer||'—',route:(o.origin||'—')+' → '+(o.destination||'—'),weight:o.weight?(o.weight+' ตัน'):'—',truckType:o.truckType||'—',requiredDate:o.requiredDate?this.thaiDate(o.requiredDate):'—',receivedDate:o.receivedDate?this.thaiDate(o.receivedDate):'—',statusLabel:o.status||'รอจัดรถ',statusStyle:oStatusChip(o.status),canDispatch:o.status!=='จ่ายงานแล้ว'&&o.status!=='ยกเลิก',dispatched:o.status==='จ่ายงานแล้ว',onEdit:()=>this.openOrderEdit(o.id),onDispatch:()=>this.dispatchOrder(o.id),onViewJob:()=>this.viewOrderJob(o.jobId),onDelete:()=>this.deleteOrder(o.id),isPrimary:!!fl.isPrimary,isSub:!!fl.isSub,showTripBadge:!!fl.isPrimary,tripBadgeFull:fl.tripBadgeFull||'',rowBg:fl.isSub?'#fafbfd':'#ffffff'});
+      const _usedTrip=new Set();const _rows=[];
+      oList.forEach(o=>{
+        if(o.tripId){if(_usedTrip.has(o.tripId))return;_usedTrip.add(o.tripId);
+          const mem=oList.filter(x=>x.tripId===o.tripId).slice().sort((a,b)=>(parseFloat(b.weight)||0)-(parseFloat(a.weight)||0));
+          const tot=Math.round(mem.reduce((s,m)=>s+(parseFloat(m.weight)||0),0)*1000)/1000;
+          _rows.push(_mkRow(mem[0],{isPrimary:true,tripBadgeFull:'🔗 เที่ยวร่วม '+mem.length+' บิล · รวม '+tot+' ตัน'}));
+          mem.slice(1).forEach(s=>_rows.push(_mkRow(s,{isSub:true})));
+        }else{_rows.push(_mkRow(o,{}));}
+      });
+      out.orderRows=_rows;
+      out.orderRowCount=_rows.filter(r=>!r.isSub).length;out.orderTotalCount=S.orders.length;out.orderEmptyVisible=oList.length===0;
       out.orderSearch=S.orderSearch;out.onOrderSearch=(e)=>this.setState({orderSearch:e.target.value});out.onAddOrder=this.openOrderNew;
+      out.orderDateFrom=S.orderDateFrom||'';out.orderDateTo=S.orderDateTo||'';out.onOrderDateFrom=(e)=>this.setState({orderDateFrom:e.target.value});out.onOrderDateTo=(e)=>this.setState({orderDateTo:e.target.value});out.onClearOrderDate=()=>this.setState({orderDateFrom:'',orderDateTo:''});
       const _oc=(label,key,count,fg,bg)=>({label,count,fg,onClick:()=>this.setState({orderStatusFilter:key}),cardStyle:'flex:1;min-width:130px;text-align:left;padding:15px 17px;border-radius:12px;border:1px solid '+(S.orderStatusFilter===key?'#2f6fb0':'#e4e7ec')+';background:'+bg+';cursor:pointer;'});
-      const _pend=S.orders.filter(o=>o.status!=='จ่ายงานแล้ว'&&o.status!=='ยกเลิก').length;
-      const _disp=S.orders.filter(o=>o.status==='จ่ายงานแล้ว').length;
-      out.orderStatCards=[_oc('ทั้งหมด','all',S.orders.length,'#16263a','#f8fafc'),_oc('รอจัดรถ','pending',_pend,'#b54708','#fff'),_oc('จ่ายงานแล้ว','dispatched',_disp,'#067647','#fff')];
+      const _ogrp={};S.orders.forEach(o=>{const k=o.tripId||('o'+o.id);if(!(k in _ogrp))_ogrp[k]=o.status;});
+      const _ogroups=Object.keys(_ogrp).map(k=>_ogrp[k]);const _ototal=_ogroups.length;
+      const _pend=_ogroups.filter(s=>s!=='จ่ายงานแล้ว'&&s!=='ยกเลิก').length;
+      const _disp=_ogroups.filter(s=>s==='จ่ายงานแล้ว').length;
+      out.orderTotalCount=_ototal;
+      out.orderStatCards=[_oc('ทั้งหมด','all',_ototal,'#16263a','#f8fafc'),_oc('รอจัดรถ','pending',_pend,'#b54708','#fff'),_oc('จ่ายงานแล้ว','dispatched',_disp,'#067647','#fff')];
       const od=S.orderDraft||{};out.od=od;out.orderFormTitle=S.orderIsNew?'เพิ่มงานรับเข้า':'แก้ไขงานรับเข้า';
       const _hc=S.hiddenCustomers||[],_ho=S.hiddenOrigins||[];
       const _copts=[...new Set(CUSTOMER_SEED.concat(S.customers.map(c=>c.name).filter(Boolean)))].filter(n=>_hc.indexOf(n)<0);if(od.customer&&_copts.indexOf(od.customer)<0)_copts.unshift(od.customer);

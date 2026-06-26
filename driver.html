@@ -163,6 +163,7 @@ function stageStatus(stageKey, idx, upd) {
 function shareText(job, upd) {
   const lines = [
     '📋 รายงานงาน ' + (job.jobNo || '—'),
+    '🧾 เลขที่บิล: ' + (job.deliveryNo || '—'),
     '🚛 รถ: ' + (job.truckPlate || '—'),
     '👤 พขร.: ' + (job.driverName || job.driverCode || '—'),
     '📅 วันที่: ' + fmtDate(job.date),
@@ -317,7 +318,7 @@ function render() {
     <div class="card">
       <div class="card-head">
         <div>
-          <div class="job-no">${job.jobNo || '—'}</div>
+          <div class="job-no">${job.jobNo || '—'}${job.deliveryNo ? ' · บิล ' + job.deliveryNo : ''}</div>
           <div class="job-plate">${job.truckPlate || ''}</div>
         </div>
         <div class="status-badge" style="background:${allDone?'#ecfdf3':'#fffaeb'};color:${allDone?'#067647':'#b54708'};">
@@ -325,14 +326,16 @@ function render() {
         </div>
       </div>
       <div class="job-rows">
-        <div class="job-row"><span class="job-lbl">เลขที่เอกสาร</span><span class="job-val">${job.deliveryNo || '—'}</span></div>
+        <div class="job-row"><span class="job-lbl">เลขที่บิล</span><span class="job-val" style="font-weight:700;">${job.deliveryNo || '—'}</span></div>
         <div class="job-row"><span class="job-lbl">รับสินค้าที่</span><span class="job-val">${job.origin || '—'}</span></div>
         <div class="job-row"><span class="job-lbl">ปลายทาง</span><span class="job-val">${job.destination || '—'}</span></div>
         <div class="job-row"><span class="job-lbl">ลูกค้า</span><span class="job-val">${job.customer || '—'}</span></div>
         <div class="job-row"><span class="job-lbl">จุดจ่ายงาน</span><span class="job-val">${job.dispatchPoint || '—'}</span></div>
+        ${(job.fuelAdvance || job.fuelAdvanceNote) ? `<div class="job-row"><span class="job-lbl">⛽ ค่าน้ำมัน/NGV</span><span class="job-val" style="font-weight:700;color:#067647;">${[job.fuelAdvance ? Number(job.fuelAdvance).toLocaleString() : '', job.fuelAdvanceNote || ''].filter(Boolean).join(' · ')}</span></div>` : ''}
       </div>
       ${job.driverNote ? `<div style="margin-top:12px;padding:12px 14px;background:#fffaeb;border:1px solid #fde68a;border-radius:10px;"><div style="font-size:12px;font-weight:700;color:#b54708;margin-bottom:4px;">📋 หมายเหตุถึงคนขับ</div><div style="font-size:15px;color:#5c3d00;line-height:1.55;white-space:pre-wrap;">${job.driverNote}</div></div>` : ''}
     </div>
+    ${job.attachment ? `<div class="card" style="padding:14px 16px;"><div style="font-size:12px;font-weight:700;color:#475467;margin-bottom:8px;">📎 เอกสารแนบ (แตะเพื่อดูเต็มจอ)</div><img src="${job.attachment}" onclick="__zoomImg(this.src)" style="width:100%;border-radius:10px;border:1px solid #e4e7ec;cursor:zoom-in;"></div>` : ''}
 
     <div class="stages-wrap">
       ${stageCards}
@@ -439,13 +442,14 @@ function refreshFromSheet() {
       let needRender = false;
       // ลิงก์สั้น (id อย่างเดียว) → เติมรายละเอียดงานจาก Sheet
       if (job._needFetch) {
-        ['jobNo','date','time','driverCode','truckPlate','origin','destination','customer','deliveryNo','dispatchPoint','dispatchTime','driverNote'].forEach(f => { if (sj[f] !== undefined && sj[f] !== '') job[f] = sj[f]; });
+        ['jobNo','date','time','driverCode','truckPlate','origin','destination','customer','deliveryNo','dispatchPoint','dispatchTime','driverNote','fuelAdvance','fuelAdvanceNote'].forEach(f => { if (sj[f] !== undefined && sj[f] !== '') job[f] = sj[f]; });
         if (Array.isArray(data.drivers)) { const drv = data.drivers.find(x => String(x.code) === String(sj.driverCode)); if (drv && drv.name) job.driverName = drv.name; }
         if (job.dispatchTime) upd.dispatchTime = job.dispatchTime;
         document.title = job.jobNo ? ('งาน ' + job.jobNo) : 'บันทึกงาน';
         job._needFetch = false;
         needRender = true;
       }
+      if (sj.attachment !== undefined && job.attachment !== sj.attachment) { job.attachment = sj.attachment; needRender = true; }
       // ดึง timestamp ล่าสุดจาก Sheet มาแสดง (Sheet เป็นหลัก)
       const fields = ['pickupTime','pickupLat','pickupLng','arrivalTime','arrivalLat','arrivalLng','completionTime','completionLat','completionLng','documentTime'];
       let changed = false;
@@ -462,6 +466,7 @@ function refreshFromSheet() {
       }
     });
 }
+window.__zoomImg = function(src){ let o=document.getElementById('__imgov'); if(!o){ o=document.createElement('div'); o.id='__imgov'; o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;display:flex;align-items:center;justify-content:center;padding:10px;'; o.onclick=function(){o.style.display='none';}; const im=document.createElement('img'); im.id='__imgovimg'; im.style.cssText='max-width:100%;max-height:100%;border-radius:8px;'; o.appendChild(im); document.body.appendChild(o);} document.getElementById('__imgovimg').src=src; o.style.display='flex'; };
 refreshFromSheet();
 // เช็คซ้ำเมื่อกลับมาที่หน้า (เปลี่ยนแท็บกลับมา)
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshFromSheet(); });
